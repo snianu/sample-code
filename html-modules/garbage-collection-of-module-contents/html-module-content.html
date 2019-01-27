@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <exported-node>one</exported-node>
+    <exported-node>one</exported-node>
+    <exported-node>one</exported-node>
+    <exported-node>one</exported-node>
+    <exported-node>one</exported-node>
+
+    <script type="module">
+        let nodes = import.meta.document.querySelectorAll("exported-node")
+        export {nodes}
+
+        export function cleanup() {
+            nodes = null
+            cleanup = null
+        }
+    </script>
+</body>
+</html>

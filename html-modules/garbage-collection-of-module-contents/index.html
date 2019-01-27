@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Allow HTML module contents to be garbage collected</title>
+    <style>
+        importer-references::before {
+            content: "content from module shown below:";
+        }
+        importer-references {
+            display: flex;
+            flex-direction: column;            
+
+            min-height: 100px;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <button>cleanup</button>
+
+    <importer-references></importer-references>
+
+    <script type="module">
+        import {nodes, cleanup as cleanupModuleReferences} from "./html-module-content.html"
+        let importerReferences = document.querySelector("importer-references")
+        importerReferences.append(...nodes)
+
+        document.querySelector("button").addEventListener("click", cleanup)
+        function cleanup() {
+            // remove references from the importing document to module content
+            importerReferences.innerHTML = ""
+
+            // allow the module to drop its own references to facilitate garbage collection
+            cleanupModuleReferences()
+
+            // now we're only left with memory used by internal module machinery which has
+            // some fixed cost per module plus some small additional cost per export
+            console.log(nodes) // null
+            console.log(cleanupModuleReferences) // null
+        }
+    </script>
+</body>
+</html>
