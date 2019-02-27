@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        accordion-element {
+            display: block;
+            border: 1px solid gray;
+            border-radius: 10px;
+            overflow: hidden
+        }
+        accordion-panel {
+            display: block;
+        }
+        accordion-panel-header {
+            display: block;
+            background-color: gray;
+            border-bottom: 1px solid black;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+        }
+        accordion-panel-body {
+            display: none;
+            padding: 10px;
+        }
+        accordion-panel[active] accordion-panel-body {
+            display: block;
+        }
+        .my-demo-accordion {
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <accordion-element class="my-demo-accordion">
+        <accordion-panel active>
+            <accordion-panel-header>One</accordion-panel-header>
+            <accordion-panel-body>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</accordion-panel-body>
+        </accordion-panel>
+        <accordion-panel>
+            <accordion-panel-header>Two</accordion-panel-header>
+            <accordion-panel-body>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</accordion-panel-body>
+        </accordion-panel>
+        <accordion-panel>
+            <accordion-panel-header>Three</accordion-panel-header>
+            <accordion-panel-body>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</accordion-panel-body>
+        </accordion-panel>
+    </accordion-element>
+    <script type="module">
+        class AccordionElement extends HTMLElement {
+            constructor() {
+                super()
+            }
+        }
+
+        class AccordionPanel extends HTMLElement {
+            constructor() {
+                super()
+
+                this.addEventListener("click", this.show.bind(this))
+            }
+
+            show() {
+                console.assert(this.parentNode instanceof AccordionElement)
+                this.parentNode.querySelector("[active]").removeAttribute("active")
+                this.setAttribute("active", "")
+            }
+        }
+
+        class AccordionPanelHeader extends HTMLElement {
+            constructor() {
+                super()
+            }
+        }
+
+        class AccordionPanelBody extends HTMLElement {
+            constructor() {
+                super()
+            }
+        }
+
+        customElements.define("accordion-element", AccordionElement)
+        customElements.define("accordion-panel", AccordionPanel)
+        customElements.define("accordion-panel-header", AccordionPanelHeader)
+        customElements.define("accordion-panel-body", AccordionPanelBody)
+    </script>
+</body>
+</html>
