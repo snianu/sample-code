@@ -33,39 +33,60 @@
     </style>
 </head>
 <body>
+    <!-- parsed custom elements not upgraded until after define -->
     <accordion-element class="my-demo-accordion">
-        <accordion-panel active>
-            <accordion-panel-header>One</accordion-panel-header>
-            <accordion-panel-body>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</accordion-panel-body>
-        </accordion-panel>
-        <accordion-panel>
-            <accordion-panel-header>Two</accordion-panel-header>
-            <accordion-panel-body>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</accordion-panel-body>
-        </accordion-panel>
-        <accordion-panel>
-            <accordion-panel-header>Three</accordion-panel-header>
-            <accordion-panel-body>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</accordion-panel-body>
-        </accordion-panel>
     </accordion-element>
+
+    <!-- templates prevent upgrades of custom elements -->
+    <template>
+        <accordion-panel>
+            <accordion-panel-header>{{header}}</accordion-panel-header>
+            <accordion-panel-body>{{body}}</accordion-panel-body>
+        </accordion-panel>        
+    </template>
+
+    <script src="../../resources/data-binding/handlebars-v4.1.0.js"></script>
     <script type="module">
+        const lorem = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        const data = [
+            { header: "One", body: lorem },
+            { header: "Two", body: lorem },
+            { header: "Three", body: lorem },
+        ]
+
         class AccordionElement extends HTMLElement {
             constructor() {
                 super()
+
+                console.log("AccordianElement constructor")
+            }
+
+            connectedCallback() {
+                const event = new Event("connected", {
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true
+                })
+                this.dispatchEvent(event)
+                if (event.defaultPrevented) {
+                    console.log("AccordionElement default connected handling prevented")
+                }
+            }
+
+            renderTemplatePanels(panelsData, template) {
+                let templateHTML = ""
+                for(const child of template.content.children) {
+                    templateHTML += child.outerHTML
+                }
+
+                const instantiate = Handlebars.compile(templateHTML)
+                
+                let panelsHTML = ""
+                for (const panelData of panelsData) {
+                    panelsHTML += instantiate(panelData)
+                }
+                this.innerHTML = panelsHTML
+                this.firstElementChild.setAttribute("active", "")
             }
         }
 
@@ -73,6 +94,7 @@
             constructor() {
                 super()
 
+                console.log("AccordianPanel constructor")
                 this.addEventListener("click", this.show.bind(this))
             }
 
@@ -86,19 +108,191 @@
         class AccordionPanelHeader extends HTMLElement {
             constructor() {
                 super()
+                console.log("AccordianPanelHeader constructor")
             }
         }
 
         class AccordionPanelBody extends HTMLElement {
             constructor() {
                 super()
+                console.log("AccordianPanelBody constructor")
             }
         }
 
+        // elements that aren't connected don't get upgraded until they are connected
+        const before_define_disconnected = document.createElement("accordion-element")
+
+        // we can run the code that can't be run until something is connected by waiting for an element specific event
+        const demoAccordion = document.querySelector("accordion-element.my-demo-accordion")
+        const demoAccordionPanelTemplate = document.querySelector("template")
+
+        demoAccordion.addEventListener("connected", (e) => {
+            demoAccordion.renderTemplatePanels(data, demoAccordionPanelTemplate)
+            // stop any other action the accordion was going to perform in its connectedCallback 
+            e.preventDefault()
+        })
+
         customElements.define("accordion-element", AccordionElement)
+        console.log("defined accordion-element") // upgrade happens before define returns
         customElements.define("accordion-panel", AccordionPanel)
+        console.log("defined accordion-panel")
         customElements.define("accordion-panel-header", AccordionPanelHeader)
+        console.log("defined accordion-panel-header")
         customElements.define("accordion-panel-body", AccordionPanelBody)
+        console.log("defined accordion-panel-body")
+
+        // elements that are created after definition are immediately upgraded (before createElement returns)
+        const after_define = document.createElement("accordion-element")
+        console.log("after create element")
+
+        // even after cloning the template content the custom elements are not upgraded
+        const clone = document.querySelector("template").content.firstElementChild.cloneNode(/*deep*/true)
+        console.log("after clone element")
+
+        // appending the clone will trigger upgrade before DOM operation returns
+        document.body.append(clone)
+        console.log("after append cloned template content")
+
+        // cleanup
+        document.body.removeChild(clone)
     </script>
+    
+    <script src="../../resources/testharness.js"></script>
+    <script type="module">
+        class AElement extends HTMLElement {
+            constructor() {
+                super()
+                this.upgraded = true
+                this.connectedCallbackReceived = false
+                this.disconnectedCallbackReceived = false
+                this.adoptedCallbackReceived = false
+                this.attributeChangedCallbackReceived = false
+            }
+
+            static get observedAttributes() { return ["a", "b"]; }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                const e = new MutationEvent("attrmodified", {
+                    composed:true,
+                    bubbles: true
+                })
+                e.attrName = name
+                e.newValue = newValue
+                e.prevValue = oldValue
+                this.dispatchEvent(e)
+            }
+
+            connectedCallback() {
+                this.connectedCallbackReceived = true
+                const e = new Event("connected", {
+                    composed:true,
+                    bubbles: true
+                })
+                this.dispatchEvent(e)
+            }
+
+            disconnectedCallback() {
+                this.disconnectedCallbackReceived = true
+                const e = new Event("disconnected", {
+                    composed:true,
+                    bubbles: true
+                })
+                this.dispatchEvent(e)
+            }
+
+            adoptedCallback() {
+                this.adoptedCallbackReceived = true
+                const e = new Event("adopted", {
+                    composed:true,
+                    bubbles: true
+                })
+                this.dispatchEvent(e)                
+            }
+        }
+
+        class BElement extends AElement {
+            constructor() {
+                super()
+            }
+        }
+
+        class CElement extends AElement {
+            constructor() {
+                super()
+            }
+        }
+
+        test(() => {
+            const aElement = document.querySelector("a-element")
+            assert_false(!!aElement.upgraded, "a-element should not be upgraded")
+            customElements.define("a-element", AElement)
+            assert_true(!!aElement.upgraded, "a-element should be upgraded")
+            assert_true(!!aElement.connectedCallbackReceived, "a-element should be connected")
+        }, "A is connected after a-element is defined")
+
+        test(() => {
+            const bTemplate = document.querySelector("#b-template")
+            const bElement = bTemplate.content.firstElementChild
+            assert_false(!!bElement.upgraded, "b-element should not be upgraded")
+            customElements.define("b-element", BElement)
+            assert_false(!!bElement.upgraded, "a-element should still not be upgraded")
+        }, "B is not upgraded after definition because it isn't in a document with a browsing context")
+
+        test(() => {
+            const cElement1 = document.createElement("c-element")
+            customElements.define("c-element", CElement)
+            const cElement2 = document.createElement("c-element")
+
+            assert_true(!!cElement2.upgraded, "cElement2 should be upgraded")
+            assert_false(!!cElement1.upgraded, "cElement1 should be upgraded")
+            assert_false(!!cElement1.connectedCallbackReceived, "cElement1 should not be connected")
+
+        }, "C is upgraded after it is created, unless it was created before c-element is defined")
+
+        test(() => {
+            const bTemplate = document.querySelector("#b-template")
+            const bElement = bTemplate.content.firstChild.ownerDocument.createElement("b-element")
+            assert_false(!!bElement.upgraded, "b-element should not be upgraded")
+        }, "Elements are not upgraded when created by a document without a browsing context")
+
+        test(() => {
+            class DElement extends AElement { constructor() { super() }}
+            const dElement = document.createElement("d-element")
+            customElements.define("d-element", DElement)
+            const div = document.createElement("div")
+            div.append(dElement)
+
+            assert_false(!!dElement.upgraded, "d-element should not be upgraded")
+        }, "Elements are not upgraded when connected with other disconnected nodes")
+
+        test(() => {
+            const bTemplate = document.querySelector("#b-template")
+            const templateOwnerDocument = bTemplate.content.firstChild.ownerDocument
+
+            class EElement extends AElement { constructor() { super() }}
+            const eElement = templateOwnerDocument.createElement("e-element")
+            customElements.define("e-element", EElement)
+            const div = document.createElement("div")
+            div.append(eElement)
+
+            assert_false(!!eElement.upgraded, "e-element should not be upgraded")
+        }, "Elements are not upgraded when created before definition until they are connected")
+
+        test(() => {
+            class FElement extends AElement { constructor() { super() }}
+            const fElement = document.createElement("f-element")
+            customElements.define("f-element", FElement)
+            fElement.setAttribute("a", "test")
+
+            assert_false(!!fElement.upgraded, "f-element should not be upgraded")
+            assert_false(!!fElement.attributeChangedCallbackReceived, "f-element should not have received a callback for attribute changes since it isn't upgraded")
+        }, "Elements don't get attribute change callbacks when not upgraded")
+
+    </script>
+    <a-element></a-element>
+
+    <template id="b-template">
+        <b-element></b-element>
+    </template>
 </body>
 </html>
