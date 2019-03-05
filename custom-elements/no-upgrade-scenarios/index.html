@@ -294,5 +294,74 @@
     <template id="b-template">
         <b-element></b-element>
     </template>
+
+    <script>
+        "use strict"
+
+        class XElement extends HTMLElement {
+            constructor() {
+                super()
+                this.upgraded = true
+                this.countOfXElements = document.querySelectorAll("x-element").length
+            }
+        }
+        customElements.define("x-element", XElement)
+    </script>
+    <x-element></x-element>
+    <x-element></x-element>
+    <x-element></x-element>
+    <script type="module">
+        test(() => {
+            const xElements = document.querySelectorAll("x-element")
+            assert_equals(xElements[0].countOfXElements, 0)
+            assert_equals(xElements[1].countOfXElements, 1)
+            assert_equals(xElements[2].countOfXElements, 2)
+        }, "Elements are upgraded before added to the tree when parsing")
+
+        test(() => {
+            const firstXElement = document.querySelector("x-element")
+            firstXElement.innerHTML = "<x-element></x-element><x-element></x-element>"
+            const xElements = firstXElement.querySelectorAll("x-element")
+            assert_equals(xElements[0].countOfXElements, 5)
+            assert_equals(xElements[1].countOfXElements, 5)
+        }, "Elements are upgraded before innerHTML returns but after they are added to the tree")
+
+        test(() => {
+            const div = document.createElement("div")
+            div.innerHTML = "<x-element></x-element><x-element></x-element>"
+            const xElements = div.querySelectorAll("x-element")
+            assert_true(!!xElements[0].upgraded)
+            assert_true(!!xElements[1].upgraded)
+        }, "Elements are upgraded via innerHTML if the parent element is owned by a document whose browsing context has the custom element defined")
+
+        test(() => {
+            const dynamicDocument = document.implementation.createHTMLDocument("title")
+            dynamicDocument.documentElement.innerHTML += "<x-element></x-element>"
+            const xElement = dynamicDocument.querySelector("x-element")
+            assert_false(!!xElement.upgraded)
+        }, "Dynamic document doesn't upgrade when innerHTML used on its nodes")
+
+        test(() => {
+            const dynamicDocument = document.implementation.createHTMLDocument("title")
+            dynamicDocument.documentElement.innerHTML += "<x-element></x-element>"
+            customElements.upgrade(dynamicDocument.documentElement)
+            const xElement = dynamicDocument.querySelector("x-element")
+            assert_false(!!xElement.upgraded)
+        }, "Dynamic document doesn't upgrade when upgarde is called on its nodes")
+
+        test(() => {
+            class RElement extends HTMLElement {
+                constructor() {
+                    super()
+                    this.upgraded = true
+                }
+            }
+            const rElement = document.createElement("r-element")
+            customElements.define("r-element", RElement)
+            assert_false(!!rElement.upgraded)
+            customElements.upgrade(rElement)
+            assert_true(!!rElement.upgraded)
+        }, "Upgrade performs upgrade on nodes owned by document with same browsing context")
+    </script>
 </body>
 </html>
