@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        #pointer-region {
+            height: 300px;
+            border: 1px solid black;
+            background-color: rgb(200,200,200);
+            margin: 10px;
+        }
+        #event-log {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-auto-flow: row
+        }
+        .event-row {
+            display: contents;
+        }
+    </style>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <label for="pointermove-enabled">enable pointer move:</label>
+        <input id="pointermove-enabled" type="checkbox" v-model="enablePointerMove" />
+
+        <label for="mousemove-enabled">enable mouse move:</label>
+        <input id="mousemove-enabled" type="checkbox" v-model="enableMouseMove" />
+
+        <div id="pointer-region"
+            v-on:pointerdown="logEvent"
+            v-on:pointerup="logEvent"
+            v-on:pointermove="logEvent"
+            v-on:mousedown="logEvent"
+            v-on:mouseup="logEvent"
+            v-on:mousemove="logEvent"
+            v-on:click="logEvent"
+            v-on:dblclick="logEvent">
+                
+        </div>
+        <div id="event-log">
+            <div>Event Class</div> <div>Event Type</div> <div>Buttons</div>
+            <div class="event-row"
+                v-for="event in events">
+                <div>{{event.constructor.name}}</div>
+                <div>{{event.type}}</div>
+                <div>{{event.buttons}}</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const pointerRegion = document.querySelector("#pointer-region")
+        const eventLog = document.querySelector("#event-log")
+        let nextId = 0
+
+        const app = new Vue({
+            el: "#app",
+            data: {
+                enablePointerMove: false, 
+                enableMouseMove: false, 
+                events: []
+            },
+            methods: {
+                logEvent: function(e) {
+                    e.id = nextId++
+                    switch(e.type) {
+                        case "pointermove":
+                            if (this.enablePointerMove && e.type == "pointermove") {
+                                this.events.unshift(e)                        
+                            }
+                            break
+                        case "mousemove":
+                            if (this.enableMouseMove && e.type == "mousemove") {
+                                this.events.unshift(e)                        
+                            }
+                            break
+                        default:                                
+                            this.events.unshift(e)                        
+                    }
+                }
+            }
+        })
+   </script>
+</body>
+</html>
