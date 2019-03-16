@@ -4,6 +4,7 @@
     <title></title>
     <style>
         #pointer-region {
+            touch-action: none;
             height: 300px;
             border: 1px solid black;
             background-color: rgb(200,200,200);
@@ -11,7 +12,7 @@
         }
         #event-log {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: repeat(6, 1fr);
             grid-auto-flow: row
         }
         .event-row {
@@ -41,11 +42,19 @@
                 
         </div>
         <div id="event-log">
-            <div>Event Class</div> <div>Event Type</div> <div>Buttons</div>
+            <div>Event Class</div>
+            <div>Event Type</div>
+            <div>PointerId</div>
+            <div>Button</div>
+            <div>Which</div>
+            <div>Buttons</div>
             <div class="event-row"
                 v-for="event in events">
                 <div>{{event.constructor.name}}</div>
                 <div>{{event.type}}</div>
+                <div>{{event.pointerId}}</div>
+                <div>{{event.button}}</div>
+                <div>{{event.which}}</div>                
                 <div>{{event.buttons}}</div>
             </div>
         </div>
