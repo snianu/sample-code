@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<template id="my-button-template">
+<style>
+    button {
+        display: inline-block;
+        
+        padding: 0;
+        border: 0;
+        
+        width: 319px;
+        height: 319px;
+
+        background-image: url("./smile.jpg")
+    }
+    button:active {
+        background-image: url("./wink.jpg")
+    }
+</style>
+<button></button>
+<link rel="preload" href="./wink.jpg" as="image">
+</template>
+
+<script type="module">
+    const doc = import.meta.document
+    const template = doc.getElementById("my-button-template")
+
+    export class MyButton extends HTMLElement {
+        constructor() {
+            super()
+
+            this.attachShadow({mode: "open"})
+            this.shadowRoot.append(template.content.cloneNode(/*deep*/true))
+        }
+    }
+</script>
