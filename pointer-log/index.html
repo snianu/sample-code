@@ -11,12 +11,14 @@
             margin: 10px;
         }
         #event-log {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            grid-auto-flow: row
+            display: table;
+            width: 100%;
         }
-        .event-row {
-            display: contents;
+        #event-log-header, .event-row {
+            display: table-row;
+        }
+        #event-log-header > *, .event-row > * {
+            display: table-cell;
         }
     </style>
     <!-- development version, includes helpful console warnings -->
@@ -38,16 +40,20 @@
             v-on:mouseup="logEvent"
             v-on:mousemove="logEvent"
             v-on:click="logEvent"
-            v-on:dblclick="logEvent">
+            v-on:dblclick="logEvent"
+            v-on:contextmenu="logEvent"
+            v-on:wheel="logEvent">
                 
         </div>
         <div id="event-log">
-            <div>Event Class</div>
-            <div>Event Type</div>
-            <div>PointerId</div>
-            <div>Button</div>
-            <div>Which</div>
-            <div>Buttons</div>
+            <div id="event-log-header">
+                <div>Event Class</div>
+                <div>Event Type</div>
+                <div>PointerId</div>
+                <div>Button</div>
+                <div>Which</div>
+                <div>Buttons</div>
+            </div>
             <div class="event-row"
                 v-for="event in events">
                 <div>{{event.constructor.name}}</div>
