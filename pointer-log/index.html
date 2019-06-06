@@ -32,7 +32,7 @@
         <label for="mousemove-enabled">enable mouse move:</label>
         <input id="mousemove-enabled" type="checkbox" v-model="enableMouseMove" />
 
-        <div id="pointer-region"
+        <div tabindex="1" id="pointer-region"
             v-on:pointerdown="logEvent"
             v-on:pointerup="logEvent"
             v-on:pointermove="logEvent"
@@ -43,7 +43,6 @@
             v-on:dblclick="logEvent"
             v-on:contextmenu="logEvent"
             v-on:wheel="logEvent">
-                
         </div>
         <div id="event-log">
             <div id="event-log-header">
@@ -53,6 +52,7 @@
                 <div>Button</div>
                 <div>Which</div>
                 <div>Buttons</div>
+                <div>Timestamp</div>
             </div>
             <div class="event-row"
                 v-for="event in events">
@@ -62,6 +62,7 @@
                 <div>{{event.button}}</div>
                 <div>{{event.which}}</div>                
                 <div>{{event.buttons}}</div>
+                <div>{{event.timeStamp}}</div>
             </div>
         </div>
     </div>
@@ -84,7 +85,14 @@
                     switch(e.type) {
                         case "pointermove":
                             if (this.enablePointerMove && e.type == "pointermove") {
-                                this.events.unshift(e)                        
+                                if (e.getCoalescedEvents) {
+                                    const coalescedEvents = e.getCoalescedEvents()
+                                    for (const coalescedEvent of coalescedEvents) {
+                                        this.events.unshift(coalescedEvent)                        
+                                    }
+                                } else {
+                                    this.events.unshift(e)                                      
+                                }
                             }
                             break
                         case "mousemove":
