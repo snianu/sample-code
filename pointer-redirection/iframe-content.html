@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+    proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+    proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+    proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+    proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </p>
+    <div id="inside-target"></div>
+    <script>
+        const body = document.querySelector("body")
+        body.addEventListener("pointerdown", dispatch)
+
+        const insideTarget = document.querySelector("#inside-target")
+        insideTarget.addEventListener("pointerdown", log)
+        insideTarget.addEventListener("pointerup", log)
+        insideTarget.addEventListener("pointermove", log)
+        insideTarget.addEventListener("click", log)
+        insideTarget.addEventListener("contextmenu", log)
+        insideTarget.addEventListener("gotpointercapture", log)
+        insideTarget.addEventListener("lostpointercapture", log)
+
+        function log(e) {
+            console.log(`iframe - ${e.type}`)
+        }
+
+        //const target = insideTarget
+        const target = parent.document.querySelector("#target")
+
+        function dispatch(e) {
+            console.log(`iframe - ${e.type}: ${e.pointerType}, ${e.pointerId}`)
+            if (e.pointerType === "mouse") {
+                console.log(`iframe - capture ${e.type}: ${e.pointerType}, ${e.pointerId}`)
+                target.setPointerCapture(e.pointerId)
+            }
+        }
+    </script>
+</body>
+</html>
