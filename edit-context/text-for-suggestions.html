@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        html, body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <script type="module">
+        const appText = "The quick brown fox jumped"
+
+        window.editContext = new EditContext()
+        editContext.textChanged(/*insertAt*/0, /*charsToRemove*/0, appText)
+        editContext.selectionChanged(new EditContextTextRange(appText.length, appText.length))
+        editContext.focus()
+
+        addEventListener("keypress", e => {
+            let text = editContext.text
+            const start = editContext.selection.start
+            const end = editContext.selection.end
+            editContext.textChanged(/*insertAt*/start, /*charsToRemove*/end - start, e.key)
+            editContext.selectionChanged(new EditContextTextRange(start + e.key.length, start + e.key.length))
+
+            // Looks like bug where our textChanged event isn't working
+            console.log(editContext.text)
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        html, body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    Must be in tablet mode on Windows.
+    <script type="module">
+        const editContext = new EditContext()
+        let focused = false;
+
+        setInterval(() => {
+            if (focused) {
+                focused = false
+                console.log("blurring")
+                editContext.blur()
+            } else {
+                focused = true
+                console.log("focusing")
+                editContext.focus()
+            }
+        }, 10000)
+    </script>
+</body>
+</html>

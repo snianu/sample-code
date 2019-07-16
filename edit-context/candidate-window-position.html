@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        html, body {
+            margin: 0;
+        }
+
+        #target {
+            position: absolute;
+            top: 500px;
+            left: 500px;
+            width: 200px;
+            height: 10px;
+
+            background-color: green; 
+        }
+    </style>
+</head>
+<body>
+    Candidate window should appear over the green box.
+    <div id="target"></div>
+    <script>
+        var editContext = new EditContext()
+        editContext.focus()
+
+        // report a selection rect to make the candidate window (when composing text)
+        // to appear next to the positioned element.
+        const target = document.getElementById("target")
+        var clientRect = target.getBoundingClientRect()
+
+        // bug: coordinates seem incorrect.
+        const editControlRect = new DOMRect(
+            /*x*/window.screenLeft + clientRect.x, 
+            /*y*/window.screenTop + clientRect.y,
+            /*width*/clientRect.width,
+            /*height*/clientRect.height)
+
+        editContext.layoutChanged(
+            editControlRect,
+            /*selection rect*/editControlRect
+        )
+    </script>
+</body>
+</html>
