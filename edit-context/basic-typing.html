@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        #pointer-region {
+            touch-action: none;
+            height: 300px;
+            border: 1px solid black;
+            background-color: rgb(200,200,200);
+            margin: 10px;
+        }
+        #event-log {
+            display: table;
+            width: 100%;
+        }
+        #event-log-header, .event-row {
+            display: table-row;
+        }
+        #event-log-header > *, .event-row > * {
+            display: table-cell;
+        }
+    </style>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div id="event-log">
+            <div id="event-log-header">
+                <div>Event</div>
+                <div>Type</div>
+                <div>Selection</div>
+                <div>Text</div>
+            </div>
+            <div class="event-row"
+                v-for="event in events">
+                <div>{{event.event}}</div>
+                <div>{{event.type}}</div>
+                <div>{{event.selection}}</div>
+                <div>"{{event.text}}"</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const eventLog = document.querySelector("#event-log")
+        let nextId = 0
+
+        const app = new Vue({
+            el: "#app",
+            data: {
+                events: []
+            }
+        })
+
+        window.editContext = new EditContext()
+        editContext.focus()
+        editContext.addEventListener("textupdate", logEvent)
+
+        addEventListener("keyup", logEvent)
+        addEventListener("keypress", e => {
+            handleCharacterKeyPress(e)
+            
+            logEvent(e)
+        })
+
+        addEventListener("keydown", e => {
+            switch (e.key) {
+                case "Enter":
+                    handleEnter(e)
+                    break;
+                case "Backspace":
+                    handleBackspace(e)
+                    break;
+            }
+            logEvent(e)
+        })
+
+        function logEvent(e) {
+            let event = {
+                event: e.constructor.name,
+                type: e.type,
+                selection: `{${editContext.selection.start}, ${editContext.selection.end}}`,
+                text: editContext.text
+            }
+            app.events.unshift(event)
+        }
+
+        function handleEnter(e) {
+            const start = editContext.selection.start
+            const end = editContext.selection.end
+
+            if (start !== end) {
+                // remove selection
+                replaceText(start, end - start, "")
+            }
+            
+            // todo: handle heuristics for enter (insert lists, etc)
+
+            // normal typing newline case
+            replaceText(start, /*charsToRemove*/0, "\n")
+
+            e.preventDefault()
+        }
+
+        function handleBackspace(e) {
+            const start = editContext.selection.start
+            const end = editContext.selection.end
+
+            if (start === end) {
+                if (start > 0) {
+                    replaceText(Math.max(start - 1, 0), /*charsToRemove*/1, "")
+                }
+            }
+            else {
+                replaceText(start, end - start, "")
+            }
+
+            e.preventDefault()
+        }
+
+        function handleCharacterKeyPress(e) {
+            const start = editContext.selection.start
+            const end = editContext.selection.end
+
+            // remove selection and insert character
+            replaceText(start, end - start, e.key)
+        }
+
+        function replaceText(insertAt, charsToRemove, textToInsert) {
+            let text = editContext.text
+            const end = insertAt + charsToRemove
+
+            console.log(`replaceText(/*insertAt*/${insertAt}, /*charsToRemove*/${charsToRemove}, /*textToInsert*/"${textToInsert}")`)
+            
+            editContext.textChanged(insertAt, end, textToInsert)
+            editContext.selectionChanged(new EditContextTextRange(end, end))
+        }
+   </script>
+</body>
+</html>
