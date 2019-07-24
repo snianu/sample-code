@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        #pointer-region {
+            touch-action: none;
+            height: 300px;
+            border: 1px solid black;
+            background-color: rgb(200,200,200);
+            margin: 10px;
+        }
+        #event-log {
+            display: table;
+            width: 100%;
+        }
+        #event-log-header, .event-row {
+            display: table-row;
+        }
+        #event-log-header > *, .event-row > * {
+            display: table-cell;
+        }
+    </style>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div id="event-log">
+            <div id="event-log-header">
+                <div>Event</div>
+                <div>Type</div>
+                <div>App Text</div>
+                <div>App Selection</div>
+                <div>EditContext Text</div>
+                <div>EditContext Selection</div>
+            </div>
+            <div class="event-row"
+                v-for="event in events">
+                <div>{{event.event}}</div>
+                <div>{{event.type}}</div>
+                <div>"{{event.appText}}"</div>
+                <div>{{event.appSelection}}</div>
+                <div>"{{event.editContextText}}"</div>
+                <div>{{event.editContextSelection}}</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // global representation of selection and document text for this demo app
+        let documentText = "Testing!"
+        let selectionStart = documentText.length
+        let selectionEnd = selectionStart
+
+        const eventLog = document.querySelector("#event-log")
+        let nextId = 0
+
+        const app = new Vue({
+            el: "#app",
+            data: {
+                events: []
+            }
+        })
+
+        window.editContext = new EditContext()
+        editContext.focus()
+
+        // Initialize the editContext to match our document's text and selection
+        editContext.textChanged(0, 0, documentText)
+        editContext.selectionChanged(new EditContextTextRange(selectionStart, selectionEnd))
+
+        editContext.addEventListener("textupdate", handleTextUpdate)
+
+        addEventListener("keyup", logEvent)
+        addEventListener("keypress", e => {
+            handleCharacterKeyPress(e)
+            
+            logEvent(e)
+        })
+
+        addEventListener("keydown", e => {
+            switch (e.key) {
+                case "Enter":
+                    handleEnter(e)
+                    break;
+                case "Backspace":
+                    handleBackspace(e)
+                    break;
+            }
+            logEvent(e)
+        })
+
+        function logEvent(e) {
+            let event = {
+                event: e.constructor.name,
+                type: e.type,
+                appSelection: `{${selectionStart}, ${selectionEnd}}`,
+                appText: documentText,
+                editContextSelection: `{${editContext.selection.start}, ${editContext.selection.end}}`,
+                editContextText: editContext.text
+            }
+            app.events.unshift(event)
+        }
+
+        function getSelection() {
+            // bug? these are always returning -1
+            // return {
+            //     start: editContext.selection.start, 
+            //     end: editContext.selection.end
+            // }
+
+            return {
+                start: selectionStart, 
+                end: selectionEnd
+            }
+        }
+
+        function updateSelection(start, end) {
+            selectionStart = start
+            selectionEnd = end
+
+            editContext.selectionChanged(new EditContextTextRange(start, end))
+        }
+
+        function handleEnter(e) {
+            const {start, end} = getSelection()
+
+            if (start !== end) {
+                // remove selection
+                replaceText(start, end - start, "")
+            }
+            
+            // todo: handle heuristics for enter (insert lists, etc)
+
+            // normal typing newline case
+            replaceText(start, /*charsToRemove*/0, "\n")
+
+            // update selection location tracked by the app
+            updateSelection(start + 1, start + 1)
+
+            e.preventDefault()
+        }
+
+        function handleBackspace(e) {
+            const {start, end} = getSelection()
+
+            if (start === end) {
+                if (start > 0) {
+                    replaceText(Math.max(start - 1, 0), /*charsToRemove*/1, "")
+
+                    // update selection location tracked by the app
+                    updateSelection(start - 1, start - 1)
+                }
+            }
+            else {
+                replaceText(start, end - start, "")
+
+                // update selection location tracked by the app
+                updateSelection(start, start)
+            }
+
+            e.preventDefault()
+        }
+
+        function handleCharacterKeyPress(e) {
+            const {start, end} = getSelection()
+
+            // remove selection and insert character
+            replaceText(start, end - start, e.key)
+
+            // update selection location tracked by the app
+            updateSelection(start + e.key.length, start + e.key.length)
+        }
+
+        function handleTextUpdate(e) {
+            selectionStart = e.newSelection.start
+            selectionEnd = e.newSelection.end
+
+            // Keeping app model text in sync (todo: consider doing this in more realistic way)
+            documentText = editContext.text
+        }
+
+        function replaceText(insertAt, charsToRemove, textToInsert) {
+            let text = editContext.text
+            const end = insertAt + charsToRemove
+
+            console.log(`replaceText(/*insertAt*/${insertAt}, /*charsToRemove*/${charsToRemove}, /*textToInsert*/"${textToInsert}")`)
+            
+            editContext.textChanged(insertAt, end, textToInsert)
+            editContext.selectionChanged(new EditContextTextRange(end, end))
+
+            // Keeping app model text in sync (todo: consider doing this in more realistic way)
+            documentText = editContext.text
+        }
+   </script>
+</body>
+</html>
