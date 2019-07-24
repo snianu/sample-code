@@ -30,32 +30,21 @@
             <div id="event-log-header">
                 <div>Event</div>
                 <div>Type</div>
-                <div>App Text</div>
-                <div>App Selection</div>
-                <div>EditContext Text</div>
-                <div>EditContext Selection</div>
+                <div>Text</div>
+                <div>Selection</div>
             </div>
             <div class="event-row"
                 v-for="event in events">
                 <div>{{event.event}}</div>
                 <div>{{event.type}}</div>
-                <div>"{{event.appText}}"</div>
-                <div>{{event.appSelection}}</div>
-                <div>"{{event.editContextText}}"</div>
-                <div>{{event.editContextSelection}}</div>
+                <div>"{{event.text}}"</div>
+                <div>{{event.selection}}</div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        // global representation of selection and document text for this demo app
-        let documentText = "Testing!"
-        let selectionStart = documentText.length
-        let selectionEnd = selectionStart
-
         const eventLog = document.querySelector("#event-log")
-        let nextId = 0
-
         const app = new Vue({
             el: "#app",
             data: {
@@ -66,11 +55,7 @@
         window.editContext = new EditContext()
         editContext.focus()
 
-        // Initialize the editContext to match our document's text and selection
-        editContext.textChanged(0, 0, documentText)
-        editContext.selectionChanged(new EditContextTextRange(selectionStart, selectionEnd))
-
-        editContext.addEventListener("textupdate", handleTextUpdate)
+        editContext.addEventListener("textupdate", logEvent)
 
         addEventListener("keyup", logEvent)
         addEventListener("keypress", e => {
@@ -95,31 +80,21 @@
             let event = {
                 event: e.constructor.name,
                 type: e.type,
-                appSelection: `{${selectionStart}, ${selectionEnd}}`,
-                appText: documentText,
-                editContextSelection: `{${editContext.selection.start}, ${editContext.selection.end}}`,
-                editContextText: editContext.text
+                selection: `{${editContext.selection.start}, ${editContext.selection.end}}`,
+                text: editContext.text
             }
             app.events.unshift(event)
         }
 
         function getSelection() {
-            // bug? these are always returning -1
-            // return {
-            //     start: editContext.selection.start, 
-            //     end: editContext.selection.end
-            // }
-
             return {
-                start: selectionStart, 
-                end: selectionEnd
+                start: editContext.selection.start, 
+                end: editContext.selection.end
             }
         }
 
         function updateSelection(start, end) {
-            selectionStart = start
-            selectionEnd = end
-
+            console.log(`updateSelection(/*start*/${start}, /*end*/${end})`)
             editContext.selectionChanged(new EditContextTextRange(start, end))
         }
 
@@ -173,14 +148,6 @@
             updateSelection(start + e.key.length, start + e.key.length)
         }
 
-        function handleTextUpdate(e) {
-            selectionStart = e.newSelection.start
-            selectionEnd = e.newSelection.end
-
-            // Keeping app model text in sync (todo: consider doing this in more realistic way)
-            documentText = editContext.text
-        }
-
         function replaceText(insertAt, charsToRemove, textToInsert) {
             let text = editContext.text
             const end = insertAt + charsToRemove
@@ -188,10 +155,6 @@
             console.log(`replaceText(/*insertAt*/${insertAt}, /*charsToRemove*/${charsToRemove}, /*textToInsert*/"${textToInsert}")`)
             
             editContext.textChanged(insertAt, end, textToInsert)
-            editContext.selectionChanged(new EditContextTextRange(end, end))
-
-            // Keeping app model text in sync (todo: consider doing this in more realistic way)
-            documentText = editContext.text
         }
    </script>
 </body>
