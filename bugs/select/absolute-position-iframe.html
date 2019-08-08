@@ -11,12 +11,13 @@
         </style>
     </head>
     <body>
-        
-        <div id="one">
-            text
-        </div> 
-        <div id="two">
-            text
-        </div> 
+        <script>
+            addEventListener("pointerdown", log)
+            function log(e) {
+                console.log(document.caretRangeFromPoint(e.clientX, e.clientY))
+            }
+        </script>
+        <div id="one">text</div> 
+        <div id="two">text</div> 
     </body>
 </html>
