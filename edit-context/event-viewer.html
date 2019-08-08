@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        th:not(:empty) {
+            border: 1px solid black;
+        }
+        #contenteditable, #textarea, #edit-context, #input {
+            border: 1px solid black;
+        }
+        #contenteditable, #textarea, #edit-context {
+            height: 100px;
+        }
+        #edit-context {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+    <div id="input-region"></div>
+    <div id="options">
+        <select id="input-type">
+            <option>input</option>
+            <option>textarea</option>
+            <option>contenteditable</option>
+            <option>EditContext</option>
+            <option>contenteditable-with-EditContext</option>
+        </select>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="3"></th>
+                <th colspan="4">Keyboard</th>
+                <th colspan="3">Input</th>
+                <th colspan="3">TextUpdate</th>
+                <th colspan="5">TextFormatUpdate</th>
+                <th colspan="2">EditContext</th>
+            </tr>
+            <tr>
+                <th>#</th>
+                <th>event</th>
+                <th>type</th>
+            
+                <th>key</th>
+                <th>code</th>
+                <th>location</th>
+                <th>repeat</th>
+                
+                <th>data</th>
+                <th>isComposing</th>
+                <th>inputType</th>
+
+                <th>new selection</th>
+                <th>update range</th>
+                <th>update text</th>
+                
+                <th>format range</th>
+                <th>underline color</th>
+                <th>background color</th>
+                <th>text decoration color</th>
+                <th>text underline style</th>
+
+                <th>selection</th>
+                <th>text</th>
+            </tr>
+        </thead>
+        <tbody id="event-log">
+        </tbody>
+    </table>
+    <script type="module">
+        let nextId = 0
+        const events = []
+
+        function logEvent(event) {
+            nextId++
+            const data = {
+                id: nextId,
+                event: event.constructor.name,
+                type: event.type,
+
+                data: "",
+                isComposing: "",
+                inputType: "",
+
+                key: "",
+                code: "",
+                location: "",
+                repeat: "",
+
+                newSelection: "",
+                updateRange: "",
+                updateText: "",
+
+                formatRange: "",
+                underlineColor: "",
+                backgroundColor: "",
+                textDecorationColor: "",
+                textUnderlineStyle: "",
+
+                selection: "",
+                text: ""
+            }
+
+            switch (event.constructor.name) {
+                case "InputEvent":
+                    data.data = event.data
+                    data.isComposing = event.isComposing
+                    data.inputType = event.inputType
+                    break
+                case "KeyboardEvent":
+                    data.key = event.key
+                    data.code = event.code
+                    data.location = event.location
+                    data.repeat = event.repeat
+                    break
+                case "TextUpdateEvent":
+                    data.newSelection = `${event.newSelection.start}, ${event.newSelection.end}`
+                    data.updateRange = `${event.updateRange.start}, ${event.updateRange.end}`
+                    data.updateText = event.updateText
+                    break
+                case "TextFormatUpdateEvent":
+                    data.formatRange = `${event.formatRange.start}, ${event.formatRange.end}`
+                    data.underlineColor = event.underlineColor
+                    data.backgroundColor = event.backgroundColor
+                    data.textDecorationColor = event.textDecorationColor
+                    data.textUnderlineStyle = event.textUnderlineStyle
+                    break
+            }
+
+            switch (inputType.value) {
+                case "EditContext":
+                    data.selection = `${editContext.selection.start}, ${editContext.selection.end}`
+                    data.text = editContext.text
+                    break
+            }
+
+            events.unshift(data)
+            renderEvent(data)
+        }
+
+        const eventLog = document.getElementById("event-log")
+        function renderEvent(data) {
+            const row = document.createElement("tr")
+            row.innerHTML = 
+`
+<td>${data.id}</td>
+<td>${data.event}</td>
+<td>${data.type}</td>
+
+<td>${data.key}</td>
+<td>${data.code}</td>
+<td>${data.location}</td>
+<td>${data.repeat}</td>
+
+<td>${data.data}</td>
+<td>${data.isComposing}</td>
+<td>${data.inputType}</td>
+
+<td>${data.newSelection}</td>
+<td>${data.updateRange}</td>
+<td>${data.updateText}</td>
+
+<td>${data.formatRange}</td>
+<td>${data.underlineColor}</td>
+<td>${data.backgroundColor}</td>
+<td>${data.textDecorationColor}</td>
+<td>${data.textUnderlineStyle}</td>
+
+<td>${data.selection}</td>
+<td>${data.text}</td>
+`
+            eventLog.prepend(row)
+        }
+
+
+        // container to hold element that will be source of input
+        // ...or correlated with input in the case of EditContext
+        const inputRegion = document.getElementById("input-region")
+        
+        // create each input type
+        const editContext = new EditContext()
+        const editContextFocusElement = document.createElement("div")
+        editContextFocusElement.setAttribute("tabindex", "1")
+        editContextFocusElement.addEventListener("focusin", e => editContext.focus())
+        editContextFocusElement.addEventListener("focusout", e => editContext.blur())
+        editContextFocusElement.setAttribute("id", "edit-context")
+        editContextFocusElement.setAttribute("contenteditable", "true")
+
+        const textarea = document.createElement("textarea")
+        textarea.setAttribute("id", "textarea")        
+        const input = document.createElement("input")
+        input.setAttribute("id", "input")
+        
+        const contenteditable = document.createElement("div")
+        contenteditable.setAttribute("id", "contenteditable")
+
+        // add event listeners for each input type
+        editContext.addEventListener("textupdate", logEvent)
+        editContext.addEventListener("textformatupdate", logEvent)
+        editContextFocusElement.addEventListener("compositionstart", logEvent)
+        editContextFocusElement.addEventListener("compositionupdate", logEvent)
+        editContextFocusElement.addEventListener("compositionend", logEvent)
+        editContextFocusElement.addEventListener("keydown", logEvent)
+        editContextFocusElement.addEventListener("keypress", logEvent)        
+        editContextFocusElement.addEventListener("keyup", logEvent)        
+        editContextFocusElement.addEventListener("input", logEvent)
+        editContextFocusElement.addEventListener("beforeinput", logEvent)        
+
+        textarea.addEventListener("compositionstart", logEvent)
+        textarea.addEventListener("compositionupdate", logEvent)
+        textarea.addEventListener("compositionend", logEvent)
+        textarea.addEventListener("keydown", logEvent)
+        textarea.addEventListener("keypress", logEvent)        
+        textarea.addEventListener("keyup", logEvent)        
+        textarea.addEventListener("input", logEvent)
+        textarea.addEventListener("beforeinput", logEvent)
+
+        input.addEventListener("compositionstart", logEvent)
+        input.addEventListener("compositionupdate", logEvent)
+        input.addEventListener("compositionend", logEvent)
+        input.addEventListener("keydown", logEvent)
+        input.addEventListener("keypress", logEvent)        
+        input.addEventListener("keyup", logEvent)        
+        input.addEventListener("input", logEvent)
+        input.addEventListener("beforeinput", logEvent)        
+
+        contenteditable.addEventListener("compositionstart", logEvent)
+        contenteditable.addEventListener("compositionupdate", logEvent)
+        contenteditable.addEventListener("compositionend", logEvent)
+        contenteditable.addEventListener("keydown", logEvent)
+        contenteditable.addEventListener("keypress", logEvent)        
+        contenteditable.addEventListener("keyup", logEvent)        
+        contenteditable.addEventListener("input", logEvent)
+        contenteditable.addEventListener("beforeinput", logEvent)        
+
+        const inputType = document.getElementById("input-type")
+        inputType.addEventListener("change", e => {
+            updateInputRegion(e.target.value)
+        })
+        updateInputRegion(inputType.value)
+
+        function updateInputRegion(type) {
+            console.log(`changing input type: ${type}`)
+            inputRegion.innerHTML = ""
+
+            switch (type) {
+                case "contenteditable-with-EditContext":
+                    editContextFocusElement.setAttribute("contenteditable", "true")
+                    inputRegion.append(editContextFocusElement)
+                    break
+                case "EditContext":
+                    editContextFocusElement.removeAttribute("contenteditable")
+                    inputRegion.append(editContextFocusElement)
+                    break
+                case "contenteditable":
+                    inputRegion.append(contenteditable)
+                    break
+                case "textarea":
+                    inputRegion.append(textarea)
+                    break
+                case "input":
+                    inputRegion.append(input)
+                    break
+            }
+
+            inputRegion.firstChild.focus()
+        }
+    </script>
+</body>
+</html>
