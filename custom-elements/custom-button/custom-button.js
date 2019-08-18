@@ -13,7 +13,7 @@ let css = `
 	border-style: inset;
 }
 `
-class CustomButton extends HTMLElement {
+export class CustomButton extends HTMLElement {
 	constructor() {
 		super()
 
