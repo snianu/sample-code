@@ -2,6 +2,12 @@
 <html>
 <head>
 	<title>Custom Button Sample</title>
+	<style>
+		/* prevent FOUC */
+		body:not(.loaded) {
+			display: none;
+		}
+	</style>
 	<!--link rel="stylesheet" href="custom-button.css"-->
 </head>
 <body>
@@ -9,6 +15,10 @@
 		import {CustomButton} from "./custom-button.js"
 
 		customElements.define("custom-button", CustomButton)
+
+		addEventListener("load", e => {
+			document.body.classList.add("loaded")
+		})
 	</script>
 	<custom-button>
 		Click Here!!!
