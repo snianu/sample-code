@@ -1,0 +1,11 @@
+custom-button {
+	border: 3px solid gray;
+	border-style: outset;
+	background-color: #eee;
+	padding: 3px;
+	user-select: none;
+}
+
+custom-button:hover:active {
+	border-style: inset;
+}

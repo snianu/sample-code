@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Custom Button Sample</title>
+	<!--link rel="stylesheet" href="custom-button.css"-->
+</head>
+<body>
+	<script type="module">
+		import {CustomButton} from "./custom-button.js"
+
+		customElements.define("custom-button", CustomButton)
+	</script>
+	<custom-button>
+		Click Here!!!
+	</custom-button>
+</body>
+</html>
