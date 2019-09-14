@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+    </style>
+</head>
+<body>
+    <div tabindex="1">
+        Text here.  Focusable too.
+    </div>
+    <script type="module">
+        addEventListener("cut", log)
+        addEventListener("copy", log)
+        addEventListener("paste", log)
+
+        function log(e) {
+            console.log(e.type)
+        }
+    </script>
+</body>
+</html>
