@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <style>
+            #one {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            addEventListener("pointerdown", log)
+            function log(e) {
+                console.log(document.caretRangeFromPoint(e.clientX, e.clientY))
+            }
+        </script>
+        <div id="one">text</div> 
+        <div id="two">text</div> 
+    </body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>toPrimitive experiments</title>
+    </head>
+    <body>
+        Inspect source and view console.
+        
+        <script type="module">
+            function toPrimitive(hint) {
+                console.log(`toPrimitive: ${hint}`)
+                
+                switch (hint) {
+                    case "string":
+                        return "to_primitive_string"
+                    case "number":
+                        return 5
+                    case "default":
+                        return true
+                    default:
+                       console.assert(false, `unhandled hint:${hint}`)
+                }
+            }
+
+            let o = {}
+            Object.defineProperty(o, Symbol.toPrimitive, { value:toPrimitive })
+
+            let test = {}
+
+            // logs toPrimitive: string
+            test[o] = "test_value"
+
+            // logs test_value
+            console.log(test.to_primitive_string)
+
+            // logs toPrimitive: number and 5
+            console.log(+o)
+
+            // logs toPrimitive: default and "true"
+            console.log(o + "")
+        </script>
+    </body>
+</html>
