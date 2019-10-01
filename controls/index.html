@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script>
+        addEventListener("load", () => {
+            
+        })
+    </script>
+    <table>
+        <thead>
+            <tr>
+                <th>Control</th>
+                <th>Demo</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Video</td>
+                <td>
+                    <video width="400" controls>
+                      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                      <source src="https://www.w3schools.com/html/mov_bbb.ogg" type="video/ogg">
+                      Your browser does not support HTML5 video.
+                    </video>
+                </td>
+                <td>Video controls in Edge have Fluent design elements.</td>
+            </tr>
+            <tr>
+                <td>Audio</td>
+                <td>
+                    <audio controls>
+                      <source src="https://www.w3schools.com/tags/horse.ogg" type="audio/ogg">
+                      <source src="https://www.w3schools.com/tags/horse.mp3" type="audio/mpeg">
+                      Your browser does not support the audio tag.
+                    </audio>
+                </td>
+                <td>Audio controls in Edge have Fluent design elements.</td>
+            </tr>
+            <tr>
+                <td>Dialog</td>
+                <td>
+                    <dialog open>
+                        This is an open "dialog" element
+                    </dialog>
+                </td>
+                <td>Dialog element not supported in Edge, supported by Chrome</td>
+            </tr>
+            <tr>
+                <td>Details / Summary</td>
+                <td>
+                    <details>
+                        <summary>A summary of the content below</summary>
+                        <p>Some content below</p>
+                        <p>Event more content</p>
+                    </details>                    
+                </td>
+                <td>Details / summary not supported in Edge.  This is an interop difference that can break the layout of sites.  We get it with Chrome.  Some work may be required to change the style of the chevron for consistency.</td>
+            </tr>
+            <tr>
+                <td>Hidden</td>
+                <td><input type="hidden" name="hidden-test" value="hidden-value" /></td>
+                <td>Name / value pair for forms.  No UI.  Non-issue.</td>
+            </tr>
+            <tr>
+                <td>Text</td>
+                <td><input type="text" placeholder="enter text" /></td>
+                <td>Text has clear button when it contains something (other than the placeholder text)</td>
+            </tr>
+            <tr>
+                <td>Search</td>
+                <td><input type="search" placeholder="search here" /></td>
+                <td>Search has clear button like text control.  Also has special onscreen keyboard that show magnifying glass for instead of Enter symbol, but not in Chrome.</td>
+            </tr>
+            <tr>
+                <td>Tel</td>
+                <td><input type="tel" placeholder="enter phone number" /></td>
+                <td>Tel has clear button like text control.  Also has special onscreen keyboard to facilitate phone number entry, but not in Chrome.</td>
+            </tr>
+            <tr>
+                <td>URL</td>
+                <td><input type="url" placeholder="enter URL" /></td>
+                <td>URL has clear button like text control.  Also has special onscreen keyboard to facilitate URL entry, but not in Chrome.</td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td><input type="email" placeholder="enter email" /></td>
+                <td>Email has clear button when it contains something (other than the placeholder text) and it controls which on screen keyboard layout is used.</td>
+            </tr>
+            <tr>
+                <td>Password</td>
+                <td><input type="password" placeholder="enter password" /></td>
+                <td>Password has reveal button when it contains something (other than the placeholder text) completely input by the user and it hasn't lost focus</td>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td><input type="date" placeholder="enter date" /></td>
+                <td>Date has Fluent date picker popup in Edge and a traditional calendar looking control in Chrome.</td>
+            </tr>
+            <tr>
+                <td>Meter</td>
+                <td>
+                    <meter value="2" min="0" max="10"></meter>
+                </td>
+                <td>Appearance differs. Edge: flat style; Chrome: shading</td>
+        </tr>
+        <tr>
+            <td>indeterminate progress</td>
+            <td><progress></progress></td>
+            <td>Appearance differs. Edge: moving dots; Chrome: flat rects</td>
+        </tr>
+        <tr>
+            <td>indeterminate -ms-ring animation</td>
+            <td><progress id="ring"></progress></td>
+            <td>Chrome: no support</td>
+        </tr>
+        <tr>
+            <td>progress</td>
+            <td><progress value="5" max="10"></progress></td>
+            <td>Appearance differs in size/color.<td></td>
+        </tr>
+        <tr>
+            <td>output element</td>
+            <td><output>output</output></td>
+            <td>No custom appearance?</td>
+        </tr>
+        <tr>
+            <td>
+                datalist
+            </td>
+            <td>
+                <input list="dl" style="width:500px" />
+                <datalist id="dl">
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" style="color:red;" />
+                  <option value="4" />
+                  <option value="5" />
+                </datalist>
+            </td>
+            <td>
+                Edge: option spacing is larger when triggered by touch; Chrome: no touch affordance
+            </td>
+        </tr>
+        <tr>
+            <td>
+                select
+            </td>
+            <td>
+                <select>
+                    <optgroup label="group">
+                        <option>a</option>
+                        <option>b</option>
+                        <option>c</option>
+                    </optgroup>
+                    <optgroup label="group2">
+                        <option>a</option>
+                        <option>b</option>
+                        <option>c</option>
+                    </optgroup>
+                </select>
+            </td>
+            <td>
+                <ul>
+                    <li>Edge: animation when opening (== Fluent?)</li>
+                    <li>Edge: option spacing larger when opened by touch</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>button</td>
+            <td><button>button</button></td>
+            <td>Different default styles (especially hover styles).  When web content specifies styles both fall back to simple styles.
+            </td>        
+        </tr>
+        <tr>
+            <td>input type=button</td>
+            <td><input type="button" value="input type=button"></td>
+            <td>same</td>
+        </tr>
+        <tr>
+            <td>input type=reset</td>
+            <td><input type="reset" value="input type=reset"></td>
+            <td>same</td>
+        </tr>
+        <tr>
+            <td>input type=submit</td>
+            <td><input type="submit" value="input type=submit"></td>
+            <td>same</td>
+        </tr>
+        <tr>
+            <td>input type=image</td>
+            <td><input type="image" src="http://placehold.it/100"></td>
+            <td>it's an image</td>
+        </tr>
+        <tr>
+            <td>input type=file</td>
+            <td><input type="file"></td>
+            <td>Appearance differs, both show classic file open dialog (which is touch friendlier in tablet mode).</td>
+        </tr>
+        <tr>
+            <td><input type="color"></td>
+            <td>input type=color</td>
+            <td>In-page appearance echos buttons. Popups: Edge custom touch friendly color picker with light dismiss; Chrome has modal win32 color picker</td>
+        </tr>
+        <tr>
+            <td>input type=radio</td>
+            <td><input type="radio" checked></td>
+            <td>Appearance differs. Edge: flat, Chrome: shaded.  Parts can be styled in Edge with ::-ms- pseudo elements.</td>
+        </tr>
+        <tr>
+            <td>input type=checkbox</td>
+            <td><input type="checkbox" checked></td>
+            <td>Appearance differs. Edge: flat, Chrome: shaded.  Parts can be styled in Edge with ::-ms- pseudo elements.  Edge treats double-click as single-click.</td>
+        </tr>
+        <tr>
+            <td>input type=range</td>
+            <td><input type="range"> </td>
+            <td>Appearance differs. Orientation change differences.  Edge: flat, Chrome: shaded.  Parts can be styled in Edge with ::-ms- pseudo elements.</td>
+        </tr>
+        </tbody>
+    </table>
+</body>
+</html>
