@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <style>
+        </style>
+    </head>
+    <body>
+        <script type="module">
+            import SpellChecker from "./SpellChecker.js"
+
+            (async () => {
+                const textToCheck = "Teh quck brown fox jumped over teh lazy dog."
+                let results = await SpellChecker.spellCheckText(textToCheck)
+
+                let textArray = textToCheck.split('')
+                let offset = 0
+
+                for (let result of results) {
+                    let suggestions = await result.getSuggestions()
+                    let replacing = textToCheck.substring(result.start, result.end)
+                    
+                    let replacementLength = result.end - result.start
+
+                    console.log(`replacing ${replacing} with ${suggestions[0]}`)
+                    textArray.splice(
+                        result.start + offset,
+                        result.end - result.start,
+                        ...suggestions[0].split('')
+                    )
+
+                    console.log(`${offset} += ${suggestions[0].length} - ${replacementLength}`)
+                    offset += suggestions[0].length - replacementLength
+
+                    console.log(`updated text: ${textArray.join('')}`)
+                }
+            })()
+        </script>
+    </body>
+</html>
