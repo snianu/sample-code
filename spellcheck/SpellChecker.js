@@ -43,7 +43,7 @@ export default class SpellChecker {
         let results = []
         let words = getSpellCheckableWordsFromText(text)
         for (let word of words) {
-            let result = checkSpellingOfWord(word)
+            let result = checkSpellingOfWord(word, languages)
             if (result) {
                 results.push(new SpellCheckResult(word, result))
             }
@@ -57,7 +57,7 @@ export default class SpellChecker {
     }
 
     static getSpellCheckLanguages() {
-        return ["en-US"]
+        return ['en-US', 'es-ES']
     }
 }
 
@@ -90,14 +90,31 @@ function getSpellCheckableWordsFromText(text) {
     return words
 }
 
-const dictionaryOfBadWords = {
-    "teh" : "the",
-    "Teh" : "The",
-    "quck" : ["quick", "quack"]
-}
+const misspelledDictionaries = {
+    'en-US' : {
+        'teh' : 'the',
+        'Teh' : 'The',
+        'quck' : ['quick', 'quack'],
+        'que' : 'queue',
+        'dog' : 'dok'
+    },
+    'es-ES' : {
+        'teh' : 'te',
+        'Teh' : 'Te',
+        'quck' : ['quico', 'quicio'],
+        'ek' : 'el'
+    }
+};
 
 function checkSpellingOfWord(word) {
-    return dictionaryOfBadWords[word]
+    for(let i = 0; i < languages.length; i++) {
+        if (languages[i] === 'es-ES') {
+            return misspelledDictionaries['es-ES'][word]
+        }
+        else if (languages[i] === 'en-US') {
+            return misspelledDictionaries['en-US'][word]
+        }
+    }
 }
 
 
