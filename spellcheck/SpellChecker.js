@@ -106,7 +106,7 @@ const misspelledDictionaries = {
     }
 };
 
-function checkSpellingOfWord(word) {
+function checkSpellingOfWord(word, languages) {
     for(let i = 0; i < languages.length; i++) {
         if (languages[i] === 'es-ES') {
             return misspelledDictionaries['es-ES'][word]
@@ -116,7 +116,6 @@ function checkSpellingOfWord(word) {
         }
     }
 }
-
 
 class SpellCheckableWord {
     constructor(start, end, text) {
