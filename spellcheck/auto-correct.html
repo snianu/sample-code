@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<head>
+    <title>Auto-correct using SpellChecker API Example</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        textarea {
+            border: 0;
+            padding: 10px;
+            outline: none;
+
+            width: calc(100vw - 20px);
+            height: calc(100vh - 24px);
+        }
+    </style>
+</head>
+<body>
+    <textarea 
+        spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off" 
+        placeholder="Type here to see auto-correction."></textarea>
+
+    <script type="module">
+        import SpellChecker from "./SpellChecker.js"
+        import WordBreaker from "./WordBreaker.js"
+
+        const textarea = document.querySelector("textarea")
+        textarea.addEventListener("input", handleInput)
+
+        let inputCount = 0
+        function handleInput(e) {
+            inputCount++
+
+            // auto-correct only during typing
+            if (e.inputType !== "insertText") {
+                console.log(`no auto-correct: inputType="${e.inputType}"`)
+                return
+            }
+
+            // don't auto-correct during composition
+            if (e.inComposition) {
+                console.log(`no auto-correct: inComposition=true`)
+                return
+            }
+
+            // if the active selection isn't a caret, don't auto-correct
+            if (
+                textarea !== document.activeElement ||
+                textarea.selectionEnd !== textarea.selectionStart
+            ) {
+                console.log(`no auto-correct: textarea didn't have active caret`)
+                return
+            }
+
+            let caretPosition = textarea.selectionEnd
+            console.assert(caretPosition > 0)
+            
+            let text = textarea.value
+            console.assert(caretPosition <= text.length)
+
+            // if the last character wasn't a word break character don't auto-correct
+            if (!WordBreaker.isWordBreakCharacter(text.charCodeAt(caretPosition - 1))) {
+                console.log(`no auto-correct: lastCharacter wasn't word-breaking "${text.substring(caretPosition - 1, caretPosition)}"`)
+                return
+            }
+
+            (async (originalInputCount) => {
+                let word = WordBreaker.previousWordFromPosition(text, caretPosition - 1)
+
+                console.log(`checking "${word.toString()}"`)
+                let results = await SpellChecker.spellCheckText(
+                    word.toString(), 
+                    navigator.inputLanguage
+                )
+
+                // if we were too slow and more input was received don't auto-correct
+                if (originalInputCount !== inputCount) {
+                    console.log(`no auto-correct: too slow originalInputCount(${originalInputCount}) !== inputCount(${inputCount})`)
+                    return
+                }
+            
+                // if there's nothing to correct return
+                if (results.length === 0) {
+                    console.log(`no auto-correct: it was a valid word`)
+                    return
+                }
+
+                // if the corrective action is not replace then we should not
+                // automatically replace anything
+                const result = results[0]
+                if (result.correctiveAction !== "replace") {
+                    console.log(`no auto-correct: correctiveAction ==="${result.correctiveAction}"`)
+                    return
+                }
+
+                console.log(`auto-correcting: ${word.toString()} to ${result.replacement}`)
+
+                let newValue = text.split("")
+                newValue.splice(
+                    word.start, 
+                    word.end - word.start, 
+                    ...result.replacement.split("")
+                )
+                newValue = newValue.join("")
+
+                console.log(`new textarea value === "${newValue}"`)
+                textarea.value = newValue
+            })(inputCount)
+        }
+    </script>
