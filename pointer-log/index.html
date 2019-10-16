@@ -4,7 +4,7 @@
     <title></title>
     <style>
         #pointer-region {
-            touch-action: none;
+            touch-action: pan-y;
             height: 300px;
             border: 1px solid black;
             background-color: rgb(200,200,200);
@@ -20,6 +20,9 @@
         #event-log-header > *, .event-row > * {
             display: table-cell;
         }
+        input {
+            margin-right: 20px;
+        }
     </style>
     <!-- development version, includes helpful console warnings -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -29,39 +32,61 @@
         <label for="pointermove-enabled">enable pointer move:</label>
         <input id="pointermove-enabled" type="checkbox" v-model="enablePointerMove" />
 
+        <label for="pointermove-enabled">enable pointer raw update:</label>
+        <input id="pointerrawupdate-enabled" type="checkbox" v-model="enablePointerRawUpdate" />
+
         <label for="mousemove-enabled">enable mouse move:</label>
         <input id="mousemove-enabled" type="checkbox" v-model="enableMouseMove" />
 
+        <label for="prevent-contextmenu">prevent contextmenu:</label>
+        <input id="prevent-contextmenu" type="checkbox" v-model="preventContextMenu" />
+
         <div tabindex="1" id="pointer-region"
+            v-on:pointercancel="logEvent"
             v-on:pointerdown="logEvent"
             v-on:pointerup="logEvent"
             v-on:pointermove="logEvent"
+            v-on:pointerrawupdate="logEvent"
             v-on:mousedown="logEvent"
             v-on:mouseup="logEvent"
             v-on:mousemove="logEvent"
             v-on:click="logEvent"
+            v-on:auxclick="logEvent"
             v-on:dblclick="logEvent"
             v-on:contextmenu="logEvent"
             v-on:wheel="logEvent">
+            Events for this element are logged.  
+            <span id="first-yellow" style="background-color:yellow">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod</span>
+            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+            quis nostrud exercitation <span id="second-yellow" style="background-color:yellow">ullamco laboris nisi ut aliquip ex ea commodo</span>
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
         </div>
         <div id="event-log">
             <div id="event-log-header">
                 <div>Event Class</div>
                 <div>Event Type</div>
+                <div>Event Target</div>
+                <div>Pointer Type</div>
                 <div>PointerId</div>
                 <div>Button</div>
                 <div>Which</div>
                 <div>Buttons</div>
+                <div>Pressure</div>
                 <div>Timestamp</div>
             </div>
             <div class="event-row"
                 v-for="event in events">
                 <div>{{event.constructor.name}}</div>
                 <div>{{event.type}}</div>
+                <div>{{event.targetName}}</div>
+                <div>{{event.pointerType}}</div>
                 <div>{{event.pointerId}}</div>
                 <div>{{event.button}}</div>
                 <div>{{event.which}}</div>                
                 <div>{{event.buttons}}</div>
+                <div>{{event.pressure}}</div>
                 <div>{{event.timeStamp}}</div>
             </div>
         </div>
@@ -76,15 +101,38 @@
             el: "#app",
             data: {
                 enablePointerMove: false, 
-                enableMouseMove: false, 
+                enableMouseMove: false,
+                enablePointerRawUpdate: false,
+                preventContextMenu: false,
+
                 events: []
             },
             methods: {
                 logEvent: function(e) {
                     e.id = nextId++
+                    e.targetName = `${e.target.tagName}#${e.target.getAttribute("id")}`
+
                     switch(e.type) {
+                        case "contextmenu":
+                            if (this.preventContextMenu) {
+                                e.preventDefault()
+                            }
+                            this.events.unshift(e)
                         case "pointermove":
-                            if (this.enablePointerMove && e.type == "pointermove") {
+                            if (this.enablePointerMove) {
+                                if (e.getCoalescedEvents) {
+                                    const coalescedEvents = e.getCoalescedEvents()
+                                    for (const coalescedEvent of coalescedEvents) {
+                                        coalescedEvent.targetName = e.targetName
+                                        this.events.unshift(coalescedEvent)                        
+                                    }
+                                } else {
+                                    this.events.unshift(e)                                      
+                                }
+                            }
+                            break
+                        case "pointerrawupdate":
+                            if (this.enablePointerRawUpdate) {
                                 if (e.getCoalescedEvents) {
                                     const coalescedEvents = e.getCoalescedEvents()
                                     for (const coalescedEvent of coalescedEvents) {
@@ -96,7 +144,7 @@
                             }
                             break
                         case "mousemove":
-                            if (this.enableMouseMove && e.type == "mousemove") {
+                            if (this.enableMouseMove) {
                                 this.events.unshift(e)                        
                             }
                             break
