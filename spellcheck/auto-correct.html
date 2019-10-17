@@ -69,7 +69,7 @@
 
                 console.log(`checking "${word.toString()}"`)
                 let results = await SpellChecker.spellCheckText(
-                    word.toString(), 
+                    word.toString(),
                     navigator.inputLanguage
                 )
 
@@ -97,8 +97,8 @@
 
                 let newValue = text.split("")
                 newValue.splice(
-                    word.start, 
-                    word.end - word.start, 
+                    word.start,
+                    word.end - word.start,
                     ...result.replacement.split("")
                 )
                 newValue = newValue.join("")

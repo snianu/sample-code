@@ -95,26 +95,40 @@ const misspelledDictionaries = {
         'teh' : 'the',
         'Teh' : 'The',
         'quck' : ['quick', 'quack'],
-        'que' : 'queue',
-        'dog' : 'dok'
+        'que' : 'queue'
     },
     'es-ES' : {
-        'teh' : 'te',
-        'Teh' : 'Te',
         'quck' : ['quico', 'quicio'],
-        'ek' : 'el'
+        'ek' : 'el',
+        'zappatoria' : 'zapateria'
     }
 };
 
 function checkSpellingOfWord(word, languages) {
-    for(let i = 0; i < languages.length; i++) {
-        if (languages[i] === 'es-ES') {
-            return misspelledDictionaries['es-ES'][word]
-        }
-        else if (languages[i] === 'en-US') {
-            return misspelledDictionaries['en-US'][word]
-        }
+    let alternatives = []
+    if (!languages)
+        languages = SpellChecker.getSpellCheckLanguages()
+
+    for (let language of languages) {
+        if (!misspelledDictionaries[language] ||
+            !misspelledDictionaries[language][word])
+            continue
+
+        if (misspelledDictionaries[language][word] instanceof Array)
+            for (let alternative of misspelledDictionaries[language][word]) {
+                alternatives.push(alternative)
+            }
+        else
+            alternatives.push(misspelledDictionaries[language][word])
     }
+
+    if (alternatives.length == 0)
+        return null
+
+    if (alternatives.length === 1)
+        return alternatives[0]
+
+    return alternatives
 }
 
 class SpellCheckableWord {

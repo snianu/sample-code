@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Use SpellChecker API for Specified Languages</title>
+    </head>
+    <body>
+        Open F12 to see console output and source code.
+        
+        <script type="module">
+            import SpellChecker from "./SpellChecker.js"
+
+            (async () => {
+                const english = "Teh quck brown fox jumped over teh lazy dog."
+                const spanish = "Donde es ek zappatoria"
+                
+                let englishResults = await SpellChecker.spellCheckText(english, ["en-US"])
+                await printResults(english, englishResults)
+
+                let spanishResults = await SpellChecker.spellCheckText(spanish, ["es-ES"])
+                await printResults(spanish, spanishResults)
+            })()
+
+            async function printResults(textToCheck, results) {
+                let textArray = textToCheck.split('')
+                let offset = 0
+
+                for (let result of results) {
+                    let suggestions = await result.getSuggestions()
+                    let replacing = textToCheck.substring(result.start, result.end)
+
+                    let replacementLength = result.end - result.start
+
+                    console.log(`replacing ${replacing} with ${suggestions[0]}`)
+                    textArray.splice(
+                        result.start + offset,
+                        result.end - result.start,
+                        ...suggestions[0].split('')
+                    )
+
+                    console.log(`${offset} += ${suggestions[0].length} - ${replacementLength}`)
+                    offset += suggestions[0].length - replacementLength
+
+                    console.log(`updated text: ${textArray.join('')}`)
+                }
+            }
+        </script>
+    </body>
+</html>
