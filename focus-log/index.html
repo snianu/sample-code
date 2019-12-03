@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        #focus-region {
+            touch-action: pan-y;
+            height: 300px;
+            border: 1px solid black;
+            background-color: rgb(200,200,200);
+            margin: 10px;
+        }
+        #event-log {
+            display: table;
+            width: 100%;
+        }
+        #event-log-header, .event-row {
+            display: table-row;
+        }
+        #event-log-header > *, .event-row > * {
+            display: table-cell;
+        }
+        input {
+            margin-right: 20px;
+        }
+    </style>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div tabindex="1" id="focus-region"
+            v-on:focusin="logEvent"
+            v-on:focusout="logEvent"
+            v-on:focus="logEvent"
+            v-on:blur="logEvent">
+            Events for this element are logged.  
+        </div>
+        <div id="event-log">
+            <div id="event-log-header">
+                <div>Event Class</div>
+                <div>Event Type</div>
+                <div>Event Target</div>
+                <div>Timestamp</div>
+            </div>
+            <div class="event-row"
+                v-for="event in events">
+                <div>{{event.constructor.name}}</div>
+                <div>{{event.type}}</div>
+                <div>{{event.targetName}}</div>
+                <div>{{event.timeStamp}}</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const pointerRegion = document.querySelector("#focus-region")
+        const eventLog = document.querySelector("#event-log")
+        let nextId = 0
+
+        const app = new Vue({
+            el: "#app",
+            data: {
+                events: []
+            },
+            methods: {
+                logEvent: function(e) {
+                    e.id = nextId++
+                    e.targetName = `${e.target.tagName}#${e.target.getAttribute("id")}`
+
+                    switch(e.type) {
+                        default:                                
+                            this.events.unshift(e)                        
+                    }
+                }
+            }
+        })
+   </script>
+</body>
+</html>
