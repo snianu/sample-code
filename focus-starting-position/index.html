@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Selection and Focus Navigation Starting Position</title>
+	<style>
+		#caret-marker {
+			height: 10px;
+			width: 0;
+			border-right: 2px solid red;
+			position: absolute;
+		}
+		#test-content {
+			position: relative;
+			border: 1px solid black;
+			padding: 20px;
+		}
+	</style>
+</head>
+<body>
+	<p>This is a test page to determine how the focus navigation start point relates to selection.</p>
+	<p>When clicking in the test content below, a red line will be placed to mark where the selection (as reported by the getSelection API) is located.</p>
+	<p>Things to try:
+		<ol>
+			<li>Click in the test content to place selection and then press tab.  Note how the next focused item will be after wherever the selection is set.</li>
+			<li>Click "Schedule reposition of selection after ipsum link" and then click to position the selection before the cupidatat link within the next 5 seconds.  When the timer expires tab and notice whether focus moves to the next link after the new selection position or the next link after the original clicked location.</li>
+			<li>Click "Schedule removal of cupidatat link" and then tab to focus the cupidatat link within the next 5 seconds.  When the timer expires tab and notice how focus moves to the next link the position where the cupidatat link was.</li>
+			<li>Find on page the word magna, then dismiss the find on page UI and press tab.  Note how focus moves to the link after the found word.  Also note that the currently highlighted found word coincides with selection.</li>
+			<li>Find on page the word magna, then dismiss the find on page UI and press tab.  Note how focus moves to the link after the found word.  Also note that the currently highlighted found word coincides with selection.</li>
+			<li>Click "Schedule ipsum link scrollIntoView" and then click to position selection after the cupidatat link within 5 seconds.  When the timer expires press tab and observe whether scrollIntoView affected the focus navigation start point.</li>
+			<li>Drag select forward over the consequat link.  Press tab.  Note whether the next link to receive focus is the consequat link or the cupidatat link.</li>
+			<li>Repeat the previous drag select experiment but drag the selection so that its reversed (start selecting after the consequat link and then drag to a spot before it).  Now press tab and note whether the next element to be focused is any different than in the previous test.</li>
+		</ol>
+	</p>
+	<b>Test content</b>
+	<div id="test-content">
+		<span id="caret-marker"></span>
+		Lorem <a href="#one">ipsum</a> dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo <a href="#two">consequat</a>. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat <a href="#three">cupidatat</a> non proident, sunt in <a href="#four">culpa</a> qui officia deserunt mollit anim id est laborum.
+	</div>
+	<p>
+		<button id="scrollLinkIntoView">Schedule ipsum link scrollIntoView</button>
+		<button id="repositionSelection">Schedule reposition of selection after the ipsum link</button>
+		<button id="removeLink">Schedule removal of cupidatat link</button>
+	</p>
+	<b>Event Log</b>
+	<div id="log"></div>
+	<script>
+		document.addEventListener("selectionchange", updateSelectionMarker)
+		addEventListener("load", updateSelectionMarker) 
+
+		const caretMarker = document.querySelector("#caret-marker")
+		const testContent = document.querySelector("#test-content")
+		function updateSelectionMarker() {
+			let s = getSelection()
+			if (s === null || s.rangeCount === 0) {
+				logEvent("hiding selection marker (selection is null)")
+				caretMarker.style.visibility = "hidden"
+				return
+			}
+
+			logEvent("marking new selection position")
+			caretMarker.style.visibility = "visible"
+
+			let r = s.getRangeAt(0)
+			let rect = r.getBoundingClientRect()
+			let origin = testContent.getBoundingClientRect()
+
+			let top = rect.top - origin.top
+			let left = rect.left - origin.left
+
+			caretMarker.style.top = top + "px"
+			caretMarker.style.left = left + "px"
+			caretMarker.style.height = rect.height + "px"
+		}
+
+		const log = document.querySelector("#log")
+		function logEvent(message) {
+			let entry = document.createElement("div")
+			entry.appendChild(document.createTextNode(message))
+			log.insertBefore(entry, log.firstChild)
+		}
+
+		const ipsumLink = document.querySelectorAll("a")[0]
+		document.querySelector("#scrollLinkIntoView")
+			.addEventListener("click", function() {
+				setTimeout(function() {
+					ipsumLink.scrollIntoView()
+					logEvent("ipsum link scrolled into view")
+				}, 5000)
+				logEvent("scrolling ipsum link into view in 5 seconds")
+			})
+
+		document.querySelector("#repositionSelection")
+			.addEventListener("click", function() {
+				setTimeout(function() {
+					getSelection()
+						.setBaseAndExtent(
+							ipsumLink.nextSibling, 10,
+							ipsumLink.nextSibling, 10
+						)
+					logEvent("selection repositioned")
+				}, 5000)
+				logEvent("repositioning selection in 5 seconds")
+			})
+
+		const cupidatatLink = document.querySelectorAll("a")[2]
+		document.querySelector("#removeLink")
+			.addEventListener("click", function() {
+				if (!cupidatatLink.parentNode) {
+					return
+				}
+
+				setTimeout(function() {
+					cupidatatLink.parentNode.removeChild(cupidatatLink)
+					logEvent("cupidatat link removed")
+				}, 5000)
+				logEvent("removing cupidatat link in 5 seconds")
+			})
+	</script>
+</body>
+</html>
