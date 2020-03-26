@@ -22,10 +22,9 @@
 	<p>Things to try:
 		<ol>
 			<li>Click in the test content to place selection and then press tab.  Note how the next focused item will be after wherever the selection is set.</li>
-			<li>Click "Schedule reposition of selection after ipsum link" and then click to position the selection before the cupidatat link within the next 5 seconds.  When the timer expires tab and notice whether focus moves to the next link after the new selection position or the next link after the original clicked location.</li>
-			<li>Click "Schedule removal of cupidatat link" and then tab to focus the cupidatat link within the next 5 seconds.  When the timer expires tab and notice how focus moves to the next link the position where the cupidatat link was.</li>
-			<li>Find on page the word magna, then dismiss the find on page UI and press tab.  Note how focus moves to the link after the found word.  Also note that the currently highlighted found word coincides with selection.</li>
-			<li>Find on page the word magna, then dismiss the find on page UI and press tab.  Note how focus moves to the link after the found word.  Also note that the currently highlighted found word coincides with selection.</li>
+			<li>Click "Schedule reposition of selection after ipsum link" and then click to position the selection before the cupidatat link within the next 5 seconds.  When the timer expires, tab and notice whether focus moves to the next link after the new selection position or the next link after the original clicked location.</li>
+			<li>Click "Schedule removal of cupidatat link" and then tab to focus the cupidatat link within the next 5 seconds.  When the timer expires, tab and notice how focus moves to the next link the position where the cupidatat link was.</li>
+			<li>Find on page the word magna (in the test content), then dismiss the find on page UI and press tab.  Note how focus moves to the link after the found word.  Also note that the currently highlighted found word coincides with selection.</li>
 			<li>Click "Schedule ipsum link scrollIntoView" and then click to position selection after the cupidatat link within 5 seconds.  When the timer expires press tab and observe whether scrollIntoView affected the focus navigation start point.</li>
 			<li>Drag select forward over the consequat link.  Press tab.  Note whether the next link to receive focus is the consequat link or the cupidatat link.</li>
 			<li>Repeat the previous drag select experiment but drag the selection so that its reversed (start selecting after the consequat link and then drag to a spot before it).  Now press tab and note whether the next element to be focused is any different than in the previous test.</li>
@@ -42,7 +41,14 @@
 		<button id="removeLink">Schedule removal of cupidatat link</button>
 	</p>
 	<b>Event Log</b>
-	<div id="log"></div>
+	<p id="log"></p>
+	<b>My findings</b>
+	<p>
+		<ul>
+			<li>In Firefox, selection always matches the focus navigation starting position.</li>
+			<li>In Chrome/Edge/Safari, selection can be different than the focus navigation starting position.  This is observable when scrollIntoView is called on an element or when selection is repositioned through script.  It happens to coincide with selection though when find on page is used to select a match or when selection is positioned with a click.</li>
+		</ul>
+	</p>
 	<script>
 		document.addEventListener("selectionchange", updateSelectionMarker)
 		addEventListener("load", updateSelectionMarker) 
