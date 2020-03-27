@@ -45,8 +45,9 @@
 	<b>My findings</b>
 	<p>
 		<ul>
-			<li>In Firefox, selection always matches the focus navigation starting position.</li>
+			<li>In Firefox, the selection's anchor position always matches the focus navigation starting position.</li>
 			<li>In Chrome/Edge/Safari, selection can be different than the focus navigation starting position.  This is observable when scrollIntoView is called on an element or when selection is repositioned through script.  It happens to coincide with selection though when find on page is used to select a match or when selection is positioned with a click.</li>
+			<li>In edgehtml-based Edge and IE, the focus navigation starting position is based on the currently focused element and selection doesn't play a role.  When the focused element is removed from the document, focus navigation will start back from the beginning of the document.</li>
 		</ul>
 	</p>
 	<script>
