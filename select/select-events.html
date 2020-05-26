@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Select Events</title>
+	<style>
+	</style>
+</head>
+<body>
+	<select>
+		<option>Apples</option>
+		<option>Oranges</option>
+		<option>Pears</option>
+	</select>
+	<script type="module">
+		let select = document.querySelector("select")
+
+		select.addEventListener("change", logEvent)
+		select.addEventListener("input", logEvent)
+		select.addEventListener("beforeinput", logEvent)
+
+		function logEvent(e) {
+			console.log(e.type)
+		}
+	</script>
+</body>
+</html>
