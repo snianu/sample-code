@@ -4,24 +4,23 @@
     <title>Editable Content</title>
     <style>
     	body {
-    		display: grid;
+    		display: flex;
     		justify-content: center;
 
     		font-family: sans-serif;
     	}
-    	#app-region {
-    		display: grid;
-    		grid-template:
-    			"one     two     three   four  five"
-    			"log     log     log     log     log"
-    			"content content content content content"
-    		;
-    		grid-auto-flow: column dense;
-    		grid-column-gap: 10px;
-    		grid-row-gap: 30px;
+        #app-region {
+            max-width: calc(100vw - 40px);
+        }
+    	#command-region {
+    		display: flex;
+    		flex-flow: row;
     	}
+        #command-log {
+            margin-top: 20px;
+        }
     	#content-region {
-    		grid-area: content;
+            margin-top: 20px;
     	}
     	textarea, [contenteditable] {
     		display: block;
@@ -29,6 +28,8 @@
 
     		border: 1px solid black;
     		margin-bottom: 20px;
+
+            overflow: auto;
     	}
     	label {
     		white-space: nowrap;
@@ -40,43 +41,39 @@
     		white-space: nowrap;
     		font-weight: bold;
     		margin-left: 10px;
-    	}
-    	#command-log {
-    		grid-area: log;
-    	}
+        }
     </style>
 </head>
 <body>
-	<div id="app-region">
-		<label for="command-name">command name:</label>
-		<input type="text" id="command-name">
+	<section id="app-region">
+        <section id="command-region">
+    		<label for="command-name">command name:</label>
+    		<input type="text" id="command-name">
 
-		<label for="command-value">command value:</label>
-		<input type="text" id="command-value">
+    		<label for="command-value">command value:</label>
+    		<input type="text" id="command-value">
 
-		<button id="execute">execute command</button>
-
-		<div id="command-log">
+    		<button id="execute">execute command</button>
+        </section>
+		<section id="command-log">
 			<label for="last-command-name">name:</label><span id="last-command-name"></span><br>
 			<label for="last-command-supported">supported:</label><span id="last-command-supported"></span><br>
 			<label for="last-command-return">return:</label><span id="last-command-return"></span>
-		</div>
+		</section>
 
-		<div id="content-region">
+		<section id="content-region">
 			<label for="contenteditable">contenteditable</label>
 		    <div id="contenteditable" contenteditable>
 		    	Richly-editable contenteditable text.
 		    </div>
 
 		    <label for="contenteditable-plaintext-only">contenteditable=plaintext-only</label>
-		    <div id="contenteditable-plaintext-only" contenteditable="plaintext-only">
-		    	Plaintext-only contenteditable text.
-		    </div>
+		    <div id="contenteditable-plaintext-only" contenteditable="plaintext-only">Plaintext-only contenteditable text.</div>
 
 		    <label for="textarea">textarea</label>
 		    <textarea id="textarea">Textarea text.</textarea>
-		</div>
-	</div>
+		</section>
+	</section>
 	<script type="module">
 		function handleExecute() {
 			let commandName = document.querySelector("#command-name").value
