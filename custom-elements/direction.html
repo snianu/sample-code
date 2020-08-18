@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<script type="module">
+    class MyElement extends HTMLElement {
+        constructor() {
+            super()
+            this.attachShadow({mode: "open"})
+
+            this.shadowRoot.innerHTML = `
+                <style>
+                    .inner {
+                        background-color: yellow;
+                    }
+                    .inner:dir(rtl) {
+                        background-color: red;
+                    }
+                    .inner:dir(ltr) {
+                        background-color: green;
+                    }
+                </style>
+                <div class="inner">Content of my-element!</div>
+            `
+        }
+    }
+    customElements.define("my-element", MyElement)
+</script>
+<style>
+    .test {
+        background-color: yellow;
+    }
+    .test:dir(rtl) {
+        background-color: red;
+    }
+    .test:dir(ltr) {
+        background-color: green;
+    }
+</style>
+<div dir="ltr">
+    <my-element></my-element>
+    <div class="test">Regular div content</div>
+</div>
+<div dir="rtl">
+    <my-element></my-element>
+    <div class="test">Regular div content</div>
+</div>
