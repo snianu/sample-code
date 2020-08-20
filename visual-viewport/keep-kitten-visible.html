@@ -26,12 +26,15 @@
     
     let windowSize = document.getElementById("window-size")
     let visualViewportSize = document.getElementById("visual-viewport-size")
+    let documentElementSize = document.getElementById("document-element-size")
     let container = document.getElementById("container")
     let kitten = document.getElementById("kitten")
 
 
     let col = container.offsetLeft
     let cot = container.offsetTop
+
+    let de = document.documentElement
 
     function render() {
         windowSize.innerHTML = `
@@ -47,6 +50,15 @@
             w:${visualViewport.width.toFixed(2)}, 
             h:${visualViewport.height.toFixed(2)},
             scale: ${visualViewport.scale.toFixed(2)}
+        `
+
+        documentElementSize.innerHTML = `
+            x:${de.offsetLeft.toFixed(2)}, 
+            y:${de.offsetTop.toFixed(2)},
+            cw:${parseInt(getComputedStyle(de).width, 10).toFixed(2)}, 
+            ch:${parseInt(getComputedStyle(de).height, 10).toFixed(2)},
+            rw:${de.getBoundingClientRect().width.toFixed(2)}, 
+            rh:${de.getBoundingClientRect().height.toFixed(2)}
         `
 
         let s = 1 / visualViewport.scale
@@ -96,7 +108,9 @@
         <label for="window-size">window: </label>
         <span id="window-size"></span><br>
         <label for="visual-viewport-size">visual: </label>
-        <span id="visual-viewport-size"></span>
+        <span id="visual-viewport-size"></span><br>
+        <label for="document-element-size">document: </label>
+        <span id="document-element-size"></span>
     </div>
     <img id="kitten" src="kitten.jpg">
 </div>
