@@ -56,10 +56,8 @@
         documentElementSize.innerHTML = `
             x:${de.offsetLeft.toFixed(2)}, 
             y:${de.offsetTop.toFixed(2)},
-            cw:${parseInt(getComputedStyle(de).width, 10).toFixed(2)}, 
-            ch:${parseInt(getComputedStyle(de).height, 10).toFixed(2)},
-            rw:${de.getBoundingClientRect().width.toFixed(2)}, 
-            rh:${de.getBoundingClientRect().height.toFixed(2)}
+            w:${de.getBoundingClientRect().width.toFixed(2)}, 
+            h:${de.getBoundingClientRect().height.toFixed(2)}
         `
 
         let s = 1 / visualViewport.scale
@@ -98,13 +96,24 @@
         let wx = window.scrollX
         let wy = window.scrollY
 
+        // iPhone only has visual viewport scrolling?
+        // don't include wx and wy transforms
+        //
+        // container.style.transform = `
+        //     scale(${s})
+        //     translate(${(w - w * s) / -2 / s}px, ${(h - h * s) / -2 / s}px)
+        //     translate(${ol / s}px, ${ot / s}px)
+        //     translate(${wx / s}px, ${wy / s}px)
+        //     translate(${(col - col * s) / -s}px, ${(cot - cot * s) / -s}px)
+        // `
+
         container.style.transform = `
             scale(${s})
             translate(${(w - w * s) / -2 / s}px, ${(h - h * s) / -2 / s}px)
             translate(${ol / s}px, ${ot / s}px)
-            translate(${wx / s}px, ${wy / s}px)
             translate(${(col - col * s) / -s}px, ${(cot - cot * s) / -s}px)
         `
+
     }
 
     render()
