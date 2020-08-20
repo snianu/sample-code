@@ -66,26 +66,32 @@
         let h = kitten.naturalHeight
         let ol = visualViewport.offsetLeft
         let ot = visualViewport.offsetTop
-        let ww = window.innerWidth
-        let wh = window.innerHeight
+        
+        // let ww = window.innerWidth
+        // let wh = window.innerHeight
+        // On iphone window dimensions equal the visual viewport dimensions
+        // Use document element width and height instead
+        
+        let dw = de.getBoundingClientRect().width
+        let dh = de.getBoundingClientRect().height
 
-        let widthOver = Math.max(w - ww, 0)
-        let heightOver = Math.max(h - wh, 0)
+        let widthOver = Math.max(w - dw, 0)
+        let heightOver = Math.max(h - dh, 0)
 
         let intrinsic = w / h
         if (widthOver > 0 && heightOver > 0) {
             if (widthOver * intrinsic > heightOver) {
-                s *= ww / w
+                s *= dw / w
             }
             else {
-                s *= wh / h
+                s *= dh / h
             }
         }
         else if (widthOver > 0) {
-            s *= ww / w
+            s *= dw / w
         }
         else if (heightOver > 0) {
-            s *= wh / h
+            s *= dh / h
         }
 
         let wx = window.scrollX
