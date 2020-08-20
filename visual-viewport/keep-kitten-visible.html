@@ -96,8 +96,8 @@
         let wx = window.scrollX
         let wy = window.scrollY
 
-        // iPhone only has visual viewport scrolling?
-        // don't include wx and wy transforms
+        // iPhone includes wx and wy in its VV offsets?
+        // Need to translate by the VV and difference with wx and wy; not sum.
         //
         // container.style.transform = `
         //     scale(${s})
@@ -111,6 +111,7 @@
             scale(${s})
             translate(${(w - w * s) / -2 / s}px, ${(h - h * s) / -2 / s}px)
             translate(${ol / s}px, ${ot / s}px)
+            translate(${(wx - ol) / s}px, ${(wy - ot) / s}px)
             translate(${(col - col * s) / -s}px, ${(cot - cot * s) / -s}px)
         `
 
