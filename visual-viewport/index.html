@@ -1,0 +1,94 @@
+<style>
+    html {
+        overflow: hidden;
+    }
+    #container {
+        display: inline-block;      
+        position:relative;
+    }
+    #bounds {
+        position: absolute;
+        width: 100%;
+        background-color: white;
+        white-space:nowrap;
+
+        font-family: monospace;
+    }
+</style>
+<script type="module">
+    visualViewport.addEventListener("scroll", render)
+    visualViewport.addEventListener("resize", render)
+
+    addEventListener("resize", render)
+    
+    let layoutSize = document.getElementById("layout-size")
+    let visualViewportSize = document.getElementById("visual-viewport-size")
+    let container = document.getElementById("container")
+    let kitten = document.getElementById("kitten")
+
+    function render() {
+        layoutSize.innerHTML = `
+            x:${window.scrollX.toFixed(2)}, 
+            y:${window.scrollY.toFixed(2)},
+            w:${window.innerWidth.toFixed(2)}, 
+            h:${window.innerHeight.toFixed(2)}
+        `
+    
+        visualViewportSize.innerHTML = `
+            x:${visualViewport.offsetLeft.toFixed(2)}, 
+            y:${visualViewport.offsetTop.toFixed(2)},
+            w:${visualViewport.width.toFixed(2)}, 
+            h:${visualViewport.height.toFixed(2)},
+            scale: ${visualViewport.scale.toFixed(2)}
+        `
+
+        let s = 1 / visualViewport.scale
+        let w = kitten.naturalWidth
+        let h = kitten.naturalHeight
+        let ol = visualViewport.offsetLeft
+        let ot = visualViewport.offsetTop
+        let ww = window.innerWidth
+        let wh = window.innerHeight
+
+        let widthOver = Math.max(w - ww, 0)
+        let heightOver = Math.max(h - wh, 0)
+
+        let intrinsic = w / h
+        if (widthOver > 0 && heightOver > 0) {
+            if (widthOver * intrinsic > heightOver) {
+                s *= ww / w
+            }
+            else {
+                s *= wh / h
+            }
+        }
+        else if (widthOver > 0) {
+            s *= ww / w
+        }
+        else if (heightOver > 0) {
+            s *= wh / h
+        }
+
+        let col = container.offsetLeft
+        let cot = container.offsetTop
+
+        container.style.transform = `
+            scale(${s})
+            translate(${(w - w * s) / -2 / s}px, ${(h - h * s) / -2 / s}px)
+            translate(${ol / s}px, ${ot / s}px)
+            translate(${(col - col * s) / -s}px, ${(cot - cot * s) / -s}px)
+        `
+    }
+
+    render()
+</script>
+
+<div id="container">
+    <div id="bounds">
+        <label for="layout-size">layout: </label>
+        <span id="layout-size"></span><br>
+        <label for="visual-viewport-size">visual: </label>
+        <span id="visual-viewport-size"></span>
+    </div>
+    <img id="kitten" src="kitten.jpg">
+</div>
