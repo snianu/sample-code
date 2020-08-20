@@ -1,7 +1,4 @@
 <style>
-    html {
-        overflow: hidden;
-    }
     #container {
         display: inline-block;      
         position:relative;
@@ -25,6 +22,10 @@
     let visualViewportSize = document.getElementById("visual-viewport-size")
     let container = document.getElementById("container")
     let kitten = document.getElementById("kitten")
+
+
+    let col = container.offsetLeft
+    let cot = container.offsetTop
 
     function render() {
         layoutSize.innerHTML = `
@@ -69,13 +70,14 @@
             s *= wh / h
         }
 
-        let col = container.offsetLeft
-        let cot = container.offsetTop
+        let wx = window.scrollX
+        let wy = window.scrollY
 
         container.style.transform = `
             scale(${s})
             translate(${(w - w * s) / -2 / s}px, ${(h - h * s) / -2 / s}px)
             translate(${ol / s}px, ${ot / s}px)
+            translate(${wx / s}px, ${wy / s}px)
             translate(${(col - col * s) / -s}px, ${(cot - cot * s) / -s}px)
         `
     }
