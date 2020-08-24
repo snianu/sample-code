@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+    }
+    #note-display-area {
+        grid-row: 1;
+        grid-column: 1;
+
+        overflow: auto;
+
+        display: flex;
+        flex-direction: column;
+
+        align-items: center;
+    }
+    h1 {
+        font-family: sans-serif;
+        font-size: 36pt;
+        color: #494630;
+        margin: 10px;
+    }
+    #new-note-area {
+        grid-row: 2;
+        grid-column: 1;
+
+        background-color: #ded68f;
+        border-top: 2px solid #b4ae76;
+
+        display: grid;
+        grid-template-columns: 1fr max-content;
+        grid-template-rows: max-content 0px;
+    }
+    #new-note-link, #note-done-link {
+        display:block;
+        font-family: sans-serif;
+        text-decoration: none;
+        color: #494630;
+        
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: start;
+        align-self: center;
+        
+        margin-right: 10px;
+        padding: 5px 10px;
+    }
+    #new-note-link.hidden, #note-done-link.hidden {
+        visibility: hidden;
+    }
+    #new-note-input {
+        display: block;
+        
+        grid-column: 1 span 2;
+        grid-row: 1;
+        align-self: stretch;
+        justify-self: center;
+        
+        width: 300px;
+        height: 30px;
+        transition: opacity 1s, bottom 1s;
+        border: 2px solid #b4ae76;
+        border-top: none;
+        outline: none;
+    }
+    #new-note-input.hidden {
+        bottom: 0;
+        opacity: 0;
+    }
+    #new-note-keyboard-spacer {
+        grid-row: 2;
+        grid-column: 1 span 2;
+        background-color: #ded68f;
+    }
+</style>
+<section id="note-display-area">
+    <h1>My Notes</h1>
+    <ol id="note-list">
+    </ol>
+</section>
+<section id="new-note-area">
+    <textarea id="new-note-input" class="hidden" virtualkeyboardpolicy="manual" placeholder="note text..."></textarea>
+    <a href="" id="new-note-link">New</a>
+    <a href="" id="note-done-link" class="hidden">Done</a>
+    <div id="new-note-keyboard-spacer"></div>
+</section>
+
+<script type="module">
+    let newNoteLink = document.getElementById("new-note-link")
+    let noteDoneLink = document.getElementById("note-done-link")
+    let newNoteInput = document.getElementById("new-note-input")
+
+    newNoteLink.addEventListener("click", e => {
+        newNoteInput.classList.remove("hidden")
+        newNoteLink.classList.add("hidden")
+        noteDoneLink.classList.remove("hidden")
+        newNoteInput.focus()
+        navigator.virtualKeyboard.show()
+
+        e.preventDefault()
+    })
+
+    noteDoneLink.addEventListener("click", e => {
+        newNoteInput.classList.add("hidden")
+        newNoteLink.classList.remove("hidden")
+        noteDoneLink.classList.add("hidden")
+        
+        navigator.virtualKeyboard.hide()
+
+        e.preventDefault()
+    })
+
+    let newNoteArea = document.getElementById("new-note-area")
+    let noteList = document.getElementById("note-list")
+
+    for (let i = 0; i < 100; i++) {
+        let li = document.createElement("li")
+        li.append(`This is note # ${i}.`)
+        noteList.append(li)
+    }
+
+    navigator.virtualKeyboard.overlaysContent = true
+    navigator.virtualKeyboard.addEventListener("geometrychange", e => {
+        console.log(e)
+        console.log(e.boundingRect)
+        let r = e.boundingRect
+        if (r.height > 0) {
+            newNoteArea.style.gridTemplateRows = `max-content calc(${r.height + 10}px)`
+        }
+        else {
+            newNoteArea.style.removeProperty("grid-template-rows")
+        }
+        
+    })
+    navigator.virtualKeyboard.hide()
+</script>
