@@ -1,0 +1,57 @@
+<style>
+    html {
+        background-image: url("cross.png");
+    }
+    body {
+        margin: 25px;
+    }
+    [contenteditable] {
+        background-color: white;
+        border: 1px solid black;
+        min-height: 50px;
+        padding: 10px;
+    }
+    #log {
+        background-color: #eee;
+    }
+</style>
+<script type="module">
+    visualViewport.addEventListener("scroll", record)
+    visualViewport.addEventListener("resize", record)
+
+    addEventListener("resize", record)
+    addEventListener("scroll", record)
+    
+    let de = document.documentElement
+    let log = document.querySelector("#log")
+    let i = 1
+    function record() {
+        let entry = document.createElement("entry")
+        
+        entry.innerHTML = `
+            #${i++}<br>
+            x:${window.scrollX.toFixed(2)}, 
+            y:${window.scrollY.toFixed(2)},
+            w:${window.innerWidth.toFixed(2)}, 
+            h:${window.innerHeight.toFixed(2)}
+            <br>
+            x:${visualViewport.offsetLeft.toFixed(2)}, 
+            y:${visualViewport.offsetTop.toFixed(2)},
+            w:${visualViewport.width.toFixed(2)}, 
+            h:${visualViewport.height.toFixed(2)},
+            scale: ${visualViewport.scale.toFixed(2)}
+            <br>
+            x:${de.offsetLeft.toFixed(2)}, 
+            y:${de.offsetTop.toFixed(2)},
+            w:${de.getBoundingClientRect().width.toFixed(2)}, 
+            h:${de.getBoundingClientRect().height.toFixed(2)}
+            <hr>
+        `
+        log.prepend(entry)
+    }
+
+    record()
+</script>
+<div contenteditable="true"></div>
+<div id="log">
+</div>
