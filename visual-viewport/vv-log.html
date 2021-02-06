@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    html {
+        background-image: url("cross.png");
+    }
+    body {
+        margin: 25px;
+    }
+    [contenteditable] {
+        background-color: white;
+        border: 1px solid black;
+        min-height: 50px;
+        padding: 10px;
+    }
+    #log {
+        background-color: #eee;
+    }
+</style>
+<script type="module">
+    visualViewport.addEventListener("scroll", record)
+    visualViewport.addEventListener("resize", record)
+
+    addEventListener("resize", record)
+    addEventListener("scroll", record)
+    
+    let de = document.documentElement
+    let log = document.querySelector("#log")
+    let i = 1
+    function record() {
+        let entry = document.createElement("entry")
+        
+        entry.innerHTML = `
+            #${i++}<br>
+            window.scrollX:${window.scrollX.toFixed(2)}, 
+            scrollY:${window.scrollY.toFixed(2)},
+            innerWidth:${window.innerWidth.toFixed(2)}, 
+            innerHeight:${window.innerHeight.toFixed(2)}
+            <br>
+            visualViewport.offsetLeft:${visualViewport.offsetLeft.toFixed(2)}, 
+            offsetTop:${visualViewport.offsetTop.toFixed(2)},
+            width:${visualViewport.width.toFixed(2)}, 
+            height:${visualViewport.height.toFixed(2)},
+            scale: ${visualViewport.scale.toFixed(2)}
+            <br>
+            documentElement.offsetLeft:${de.offsetLeft.toFixed(2)}, 
+            offsetTop:${de.offsetTop.toFixed(2)},
+            width:${de.getBoundingClientRect().width.toFixed(2)}, 
+            height:${de.getBoundingClientRect().height.toFixed(2)}
+            <hr>
+        `
+        log.prepend(entry)
+    }
+
+    record()
+</script>
+<div contenteditable="true"></div>
+<div id="log">
+</div>
