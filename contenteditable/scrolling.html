@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editable Content</title>
+    <style>
+    	body {
+    		display: flex;
+    		justify-content: center;
+
+    		font-family: sans-serif;
+    	}
+        #app-region {
+            max-width: calc(100vw - 40px);
+        }
+    	#command-region {
+    		display: flex;
+    		flex-flow: row;
+    	}
+        #command-log {
+            margin-top: 20px;
+        }
+    	#content-region {
+            margin-top: 20px;
+    	}
+    	textarea, [contenteditable] {
+    		display: block;
+    		min-height: 100px;
+
+    		border: 1px solid black;
+    		margin-bottom: 20px;
+
+            overflow: auto;
+    	}
+    	label {
+    		white-space: nowrap;
+    	}
+    	label[for=command-value] {
+    		margin-left: 10px;
+    	}
+    	#execute {
+    		white-space: nowrap;
+    		font-weight: bold;
+    		margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+	<section id="app-region">
+        <section id="command-region">
+    		<label for="command-name">command name:</label>
+    		<input type="text" id="command-name">
+
+    		<label for="command-value">command value:</label>
+    		<input type="text" id="command-value">
+
+    		<button id="execute">execute command</button>
+        </section>
+		<section id="command-log">
+			<label for="last-command-name">name:</label><span id="last-command-name"></span><br>
+			<label for="last-command-supported">supported:</label><span id="last-command-supported"></span><br>
+			<label for="last-command-return">return:</label><span id="last-command-return"></span>
+		</section>
+
+		<section id="content-region">
+			<label for="contenteditable">contenteditable</label>
+		    <div id="contenteditable" contenteditable>
+		    	Richly-editable contenteditable text.
+		    </div>
+
+		    <label for="contenteditable-plaintext-only">contenteditable=plaintext-only</label>
+		    <div id="contenteditable-plaintext-only" contenteditable="plaintext-only">Plaintext-only contenteditable text.</div>
+
+            <button id="busy">Busy Loop for 10s</button>
+		    <label for="textarea">textarea</label>
+		    <textarea id="textarea">Textarea text.</textarea>
+		</section>
+	</section>
+	<script>
+        let busyCount = 0
+        function busy() {
+            if (busyCount === 0) {
+                return
+            }
+
+            busyCount--
+
+            let start = performance.now()
+            while (performance.now() - start < 900) {
+                for (let i = 0; i < 1000000; i++) {}
+            }
+
+            requestAnimationFrame(busy)
+        }
+
+        document.querySelector("#busy").addEventListener("click", () => {
+            busyCount = 10
+            busy()
+        })
+        
+		function handleExecute() {
+			let commandName = document.querySelector("#command-name").value
+			let commandValue = document.querySelector("#command-value").value
+
+			document.querySelector("#last-command-name").innerText = commandName
+			document.querySelector("#last-command-supported").innerText = document.queryCommandSupported(commandName)
+			document.querySelector("#last-command-return").innerText = document.execCommand(commandName, false, commandValue)
+		}
+		document.querySelector("#execute").addEventListener("click", handleExecute)
+	</script>
+</body>
+</html>
