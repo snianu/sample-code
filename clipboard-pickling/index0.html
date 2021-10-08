@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+    <h1>Async Clipboard API Write/Read Demo</h1>
+
+    <section>
+      <button id="copy"><strong>Copy</strong><br><em>(write to clipboard)</em></button>
+      <button id="paste"><strong>Paste</strong><br><em>(read from clipboard)</em></button>
+    </section>
+
+    <textarea id="out" placeholder="Text to copy"></textarea>
+    <div id="editBox" contenteditable="true">Some text</div>
+    <!-- <iframe src="indent.htm"></iframe> -->
+
+    <h3>Permissions:</h3>
+
+    <section id="permbuttons"><button title="Click to request permission" data-state="denied">read</button><button title="Click to request permission" data-state="granted">write</button></section>
+
+    <div id="toast" class="" hidden="">Failed to read clipboard</div>
+    <div id="logDiv"></div>
+    <img src="mac_key_event.png" width="200" height="200">
+  
+    <script>
+        /** Write contents of the textarea to the clipboard when clicking "Copy" */
+        copy.onclick = async () => {
+            try {
+              let img = document.querySelector('img');
+              const image_blob = await fetch('mac_key_event.png').then(response => response.blob());
+              const customText1 = new Blob(
+                ['<custom_markup>pickled_text1</custom_markup>'], {type: 'text/custom'});
+              const html_text = new Blob(
+                ['<html><body><div>hello</div></body></html>'], {type: 'text/html'});
+
+              const clipboard_item = new ClipboardItem({
+                'text/html': html_text,     /* Sanitized format. */
+                'image/png': image_blob,
+                'text/custom' : customText1    /* Pickled format. This new format will be accepted
+                                            and written without rejection, as long as the new
+                                            direct list contains this format. */
+              },
+              {unsanitized: ['image/png', 'text/custom']} /* This new list specifies the pickled format
+                                        'text/custom'. */
+              );
+              navigator.clipboard.write([clipboard_item]);
+          } catch(e) {
+              console.log(e);
+          }
+        };
+        
+        /** Read from clipboard when clicking the Paste button */
+        paste.onclick = async () => {
+            try {
+              const clipboardItems = await navigator.clipboard.read(
+                {unsanitized: ['text/custom']} /* This new list specifies the pickled format
+                                          'text/custom' for all read ClipboardItems. */
+              );
+            const clipboardItem = clipboardItems[0];
+            // This format reads as a pickled format, only if it is included in the direct
+            // format list.
+            const customTextBlob = await clipboardItem.getType('text/custom');
+            // const customTextBlob = await clipboardItem.getType('text/plain');
+            out.value = await customTextBlob.text();
+            console.log('Text pasted.');
+          } catch(e) {
+            console.log('Failed to read clipboard');
+          }
+        };
+        
+        /** Watch for pastes */
+        // navigator.clipboard.addEventListener('clipboardchange', e => {
+        //     navigator.clipboard.getText().then( text => {
+        //         log('Updated clipboard contents: '+text)
+        //     })
+        // });
+        
+        /** The 4 available permissions for Async Clipboard API: */
+        // const PERMISSIONS = [
+        //     { name: "clipboard-read" },
+        //   { name: "clipboard-write" }
+        //     //{ name: "clipboard-read",  allowWithoutGesture: false },
+        //   //{ name: "clipboard-read",  allowWithoutGesture: true  },
+        //   //{ name: "clipboard-write", allowWithoutGesture: false },
+        //   //{ name: "clipboard-write", allowWithoutGesture: true  }
+        // ];
+        
+        // /** Query for each permission's state, then watch for changes and update buttons accordingly: */
+        // Promise.all(
+        //     PERMISSIONS.map( descriptor => navigator.permissions.query(descriptor) )
+        // ).then( permissions => {
+        //   permissions.forEach( (status, index) => {
+        //     let descriptor = PERMISSIONS[index],
+        //         name = permissionName(descriptor),
+        //         btn = document.createElement('button');
+        //     btn.title = 'Click to request permission';
+        //     btn.textContent = name;
+        //     // Clicking a button (re-)requests that permission:
+        //     btn.onclick = () => {
+        //       navigator.permissions.request(descriptor)
+        //         .then( status => { log(`Permission ${status.state}.`); })
+        //         .catch( err => { log(`Permission denied: ${err}`); });
+        //     };
+        //     // If the permission status changes, update the button to show it
+        //     status.onchange = () => {
+        //       btn.setAttribute('data-state', status.state);
+        //     };
+        //     status.onchange();
+        //     permbuttons.appendChild(btn);
+        //   });
+        // });
+        
+        
+        
+        // function permissionName(permission) {
+        //     let name = permission.name.split('-').pop();
+        //   if ('allowWithoutGesture' in permission) {
+        //       name += ' ' + (permission.allowWithoutGesture ? '(without gesture)' : '(with gesture)');
+        //   }
+        //   return name;
+        // }
+        
+        
+        function log(value) {
+          //clearTimeout(log.timer);
+        //   if (toast.hidden) toast.textContent = value;
+        toast.textContent = value;
+        // else
+          toast.textContent += '\n' + value;
+            toast.className = String(value).match(/error/i) ? 'error' : '';
+          toast.hidden = false;
+          //log.timer = setTimeout( () => { toast.hidden = true; }, 3000);
+        }
+    </script>
+</body>
+</html>
